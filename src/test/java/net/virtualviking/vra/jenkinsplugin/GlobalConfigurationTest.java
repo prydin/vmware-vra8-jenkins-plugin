@@ -37,7 +37,7 @@ public class GlobalConfigurationTest {
               "global config page let us edit it",
               "hello",
               GlobalVRAConfiguration.get().getToken());
-          GlobalVRAConfiguration.get().save(); // TODO: Should this be needed?
+          // GlobalVRAConfiguration.get().save(); // TODO: Should this be needed?
         });
     rr.then(
         r -> {

@@ -15,6 +15,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
 public class DeployFromCatalogStep extends AbstractStep {
+  @Extension public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
   private long timeout = 300;
   private String projectName;
   private String catalogItemName;
@@ -29,7 +30,7 @@ public class DeployFromCatalogStep extends AbstractStep {
 
   @Override
   public StepExecution start(final StepContext stepContext) throws Exception {
-    return null;
+    return new DeployFromCatalogExecution(this, stepContext);
   }
 
   public String getProjectName() {
@@ -102,6 +103,11 @@ public class DeployFromCatalogStep extends AbstractStep {
   @DataBoundSetter
   void setTimeout(final long timeout) {
     this.timeout = timeout;
+  }
+
+  @Override
+  public StepDescriptor getDescriptor() {
+    return DESCRIPTOR;
   }
 
   @Extension
