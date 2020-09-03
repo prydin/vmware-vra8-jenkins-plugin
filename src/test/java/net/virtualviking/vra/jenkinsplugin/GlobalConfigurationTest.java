@@ -27,24 +27,23 @@ public class GlobalConfigurationTest {
   public void uiAndStorage() {
     rr.then(
         r -> {
-          assertNull("not set initially", GlobalVRAConfiguration.get().getToken());
+          assertNull("not set initially", GlobalVRAConfiguration.get().getVraURL());
           final HtmlForm config = r.createWebClient().goTo("configure").getFormByName("config");
-          final HtmlTextInput textbox = config.getInputByName("_.token");
+          final HtmlTextInput textbox = config.getInputByName("_.vraURL");
           textbox.setText("hello");
 
           r.submit(config);
           assertEquals(
               "global config page let us edit it",
               "hello",
-              GlobalVRAConfiguration.get().getToken());
-          // GlobalVRAConfiguration.get().save(); // TODO: Should this be needed?
+              GlobalVRAConfiguration.get().getVraURL());
         });
     rr.then(
         r -> {
           assertEquals(
               "still there after restart of Jenkins",
               "hello",
-              GlobalVRAConfiguration.get().getToken());
+              GlobalVRAConfiguration.get().getVraURL());
         });
   }
 }

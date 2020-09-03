@@ -4,8 +4,6 @@ import com.google.common.collect.ImmutableSet;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.model.TaskListener;
-import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
@@ -20,9 +18,9 @@ public class DeployFromCatalogStep extends AbstractStep {
   private String projectName;
   private String catalogItemName;
   private String version;
-  private String description;
+  private String deploymentName;
   private String reason;
-  private Map<String, String> inputs = Collections.EMPTY_MAP;
+  private String inputs;
   private int count = 1;
 
   @DataBoundConstructor
@@ -60,13 +58,13 @@ public class DeployFromCatalogStep extends AbstractStep {
     this.version = version;
   }
 
-  public String getDescription() {
-    return description;
+  public String getDeploymentName() {
+    return deploymentName;
   }
 
   @DataBoundSetter
-  public void setDescription(final String description) {
-    this.description = description;
+  public void setDeploymentName(final String deploymentName) {
+    this.deploymentName = deploymentName;
   }
 
   public String getReason() {
@@ -78,12 +76,12 @@ public class DeployFromCatalogStep extends AbstractStep {
     this.reason = reason;
   }
 
-  public Map<String, String> getInputs() {
+  public String getInputs() {
     return inputs;
   }
 
   @DataBoundSetter
-  public void setInputs(final Map<String, String> inputs) {
+  public void setInputs(final String inputs) {
     this.inputs = inputs;
   }
 

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
-    <f:section title="${%Sample Plugin}">
-        <f:entry field="url" title="${%vRealize Automation API URL}">
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form" xmlns:c="/lib/credentials">
+    <f:section title="${%vRealize Automation 8.x Plugin}">
+        <f:entry field="vraURL" title="${%vRealize Automation API URL}">
             <f:textbox/>
         </f:entry>
-        <f:entry field="token" title="${%Token}">
-            <f:textbox/>
+        <f:entry field="credentialId" title="${%Credential}">
+            <c:select/>
          </f:entry>
     </f:section>
 </j:jelly>

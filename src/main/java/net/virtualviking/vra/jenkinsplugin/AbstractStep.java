@@ -1,5 +1,6 @@
 package net.virtualviking.vra.jenkinsplugin;
 
+import net.virtualviking.vra.jenkinsplugin.util.SecretHelper;
 import net.virtualviking.vra.jenkinsplugin.vra.VRAClient;
 import net.virtualviking.vra.jenkinsplugin.vra.VRAException;
 import org.apache.commons.lang.StringUtils;
@@ -24,7 +25,7 @@ abstract class AbstractStep extends Step {
     if (StringUtils.isNotBlank(url)) {
       return url;
     }
-    return GlobalVRAConfiguration.get().getUrl();
+    return GlobalVRAConfiguration.get().getVraURL();
   }
 
   @DataBoundSetter
@@ -33,10 +34,15 @@ abstract class AbstractStep extends Step {
   }
 
   public String getToken() {
+    // If token is specified locally, got get it. Otherwise, try to get it from the global config.
     if (StringUtils.isNotBlank(token)) {
       return token;
     }
-    return GlobalVRAConfiguration.get().getToken();
+    final String credId = GlobalVRAConfiguration.get().getCredentialId();
+    if (credId == null) {
+      return null;
+    }
+    return SecretHelper.getSecretFor(credId).orElse(null);
   }
 
   @DataBoundSetter
