@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.model.TaskListener;
+import java.io.Serializable;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
@@ -12,8 +13,9 @@ import org.jenkinsci.plugins.workflow.steps.StepExecution;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
-public class DeployFromCatalogStep extends AbstractStep {
+public class DeployFromCatalogStep extends AbstractStep implements Serializable {
   @Extension public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
+  private static final long serialVersionUID = -4841698058313077987L;
   private long timeout = 300;
   private String projectName;
   private String catalogItemName;
@@ -27,7 +29,7 @@ public class DeployFromCatalogStep extends AbstractStep {
   public DeployFromCatalogStep() {}
 
   @Override
-  public StepExecution start(final StepContext stepContext) throws Exception {
+  public StepExecution start(final StepContext stepContext) {
     return new DeployFromCatalogExecution(this, stepContext);
   }
 

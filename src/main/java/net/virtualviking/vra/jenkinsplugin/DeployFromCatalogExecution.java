@@ -4,6 +4,7 @@ import static net.virtualviking.vra.jenkinsplugin.util.ValueCheckers.notBlank;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +17,8 @@ import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.jenkinsci.plugins.workflow.steps.SynchronousNonBlockingStepExecution;
 
-public class DeployFromCatalogExecution extends SynchronousNonBlockingStepExecution<Deployment[]> {
+public class DeployFromCatalogExecution extends SynchronousNonBlockingStepExecution<Deployment[]>
+    implements Serializable {
   private static final long serialVersionUID = -2997964521533971915L;
   private static final Type mapStringString = new TypeToken<Map<String, String>>() {}.getType();
   private final DeployFromCatalogStep step;
