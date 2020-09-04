@@ -6,6 +6,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.internal.bind.util.ISO8601Utils;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 import net.virtualviking.vra.jenkinsplugin.model.AuthenticationRequest;
 import net.virtualviking.vra.jenkinsplugin.model.AuthenticationResponse;
@@ -35,6 +37,7 @@ import net.virtualviking.vra.jenkinsplugin.model.catalog.CatalogItemRequest;
 import net.virtualviking.vra.jenkinsplugin.model.catalog.CatalogItemRequestResponse;
 import net.virtualviking.vra.jenkinsplugin.model.catalog.Deployment;
 import net.virtualviking.vra.jenkinsplugin.model.catalog.PageOfCatalogItem;
+import net.virtualviking.vra.jenkinsplugin.model.catalog.Resource;
 import net.virtualviking.vra.jenkinsplugin.model.iaas.Project;
 import net.virtualviking.vra.jenkinsplugin.model.iaas.ProjectResult;
 import org.apache.commons.lang.StringUtils;
@@ -53,10 +56,10 @@ import org.apache.http.ssl.SSLContextBuilder;
 public class VRAClient implements Serializable {
   private static final long serialVersionUID = -3538449737600216823L;
   private static final String API_VERSION = "2019-09-12";
+  private static final long deploymentPollInterval = 30000;
   private final String refreshToken;
   private final String baseUrl;
   private final Gson gson;
-  private final long deploymentPollInterval = 30000;
 
   public VRAClient(final String url, final String token) throws VRAException {
     gson = new GsonBuilder().registerTypeAdapter(Date.class, new DateTypeAdapter()).create();
@@ -108,16 +111,18 @@ public class VRAClient implements Serializable {
       return "";
     }
     queries.put("apiVersion", API_VERSION);
-    String s = "?";
+    final StringBuilder s = new StringBuilder("?");
     boolean amp = false;
     for (final Map.Entry<String, String> q : queries.entrySet()) {
       if (amp) {
-        s += '&';
+        s.append('&');
       }
-      s += q.getKey() + "=" + URLEncoder.encode(q.getValue(), Charset.defaultCharset().name());
+      s.append(q.getKey())
+          .append("=")
+          .append(URLEncoder.encode(q.getValue(), Charset.defaultCharset().name()));
       amp = true;
     }
-    return s;
+    return s.toString();
   }
 
   public Blueprint getBlueprintByName(final String name) throws VRAException {
@@ -142,10 +147,7 @@ public class VRAClient implements Serializable {
             mapOf("search", name, "size", "1000000"),
             PageOfCatalogItem.class);
     final List<CatalogItem> content = page.getContent();
-    return content.stream()
-        .filter((c) -> c.getName().equals(name))
-        .findFirst()
-        .orElseGet(() -> null);
+    return content.stream().filter((c) -> c.getName().equals(name)).findFirst().orElse(null);
   }
 
   public Project getProjectByName(final String name) throws VRAException {
@@ -164,6 +166,39 @@ public class VRAClient implements Serializable {
 
   public CatalogItem getCatalogItemById(final String id) throws VRAException {
     return get(baseUrl + "/catalog/api/items/" + id, null, CatalogItem.class);
+  }
+
+  public String waitForIPAddress(final String deploymentId, final String resourceName, final long timeout)
+      throws VRAException, InterruptedException, TimeoutException {
+    final long start = System.currentTimeMillis();
+    Deployment dep = waitForCatalogDeployment(deploymentId, timeout);
+    for (; ; ) {
+      final Optional<Resource> resource =
+          dep.getResources().stream().filter((r) -> r.getName().equals(resourceName)).findFirst();
+      if (!resource.isPresent()) {
+        continue;
+      }
+      final Resource r = resource.get();
+      final Object props = r.getProperties();
+      if (props == null) {
+        continue;
+      }
+      if (!(props instanceof Map)) {
+        throw new VRAException(
+            "Expected properties to be a Map but got" + props.getClass().getName());
+      }
+      final String ip = ((Map<String, String>) props).get("address");
+      if (ip != null) {
+        return ip;
+      }
+
+      final long remaining = timeout - (System.currentTimeMillis() - start);
+      if (remaining <= 0) {
+        throw new TimeoutException("Timeout while waiting for IP address");
+      }
+      Thread.sleep(Math.min(remaining, 30000));
+      dep = getCatalogDeployment(deploymentId, true);
+    }
   }
 
   private <R> R get(final String url, final Map<String, String> query, final Class<R> responseClass)
@@ -193,7 +228,7 @@ public class VRAClient implements Serializable {
       final String project,
       final String deploymentName,
       final String reason,
-      final Map inputs,
+      final Map<String, String> inputs,
       final int count)
       throws VRAException {
     final CatalogItem ci = getCatalogItemByName(ciName);
@@ -230,7 +265,7 @@ public class VRAClient implements Serializable {
     final long start = System.currentTimeMillis();
     for (; ; ) {
       final Deployment dep = getCatalogDeployment(deploymentId, false);
-      if (dep != null || dep.getStatus() != null) {
+      if (dep != null && dep.getStatus() != null) {
         if (!dep.getStatus().getValue().endsWith("_INPROGRESS")) {
           return getCatalogDeployment(deploymentId, true);
         }
@@ -264,11 +299,7 @@ public class VRAClient implements Serializable {
       builder.loadTrustMaterial(null, new TrustSelfSignedStrategy());
       final SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(builder.build());
       return HttpClients.custom().setSSLSocketFactory(sslsf).build();
-    } catch (final KeyStoreException e) {
-      throw new VRAException(e);
-    } catch (final KeyManagementException e) {
-      throw new VRAException(e);
-    } catch (final NoSuchAlgorithmException e) {
+    } catch (final KeyStoreException | KeyManagementException | NoSuchAlgorithmException e) {
       throw new VRAException(e);
     }
   }
@@ -295,9 +326,7 @@ public class VRAClient implements Serializable {
   }
 
   private String executeRequest(final HttpUriRequest rq) throws IOException, VRAException {
-    CloseableHttpClient client = null;
-    try {
-      client = getClient();
+    try (final CloseableHttpClient client = getClient()) {
       rq.setHeader("Accept", "application/json; charset=utf-8");
       if (StringUtils.isNotBlank(refreshToken)) {
         final String authorization = "Bearer " + refreshToken;
@@ -310,10 +339,6 @@ public class VRAClient implements Serializable {
         throw new VRAException(resp.getStatusLine().toString() + " URL:" + rq.getURI().toString());
       }
       return readAll(resp.getEntity().getContent());
-    } finally {
-      if (client != null) {
-        client.close();
-      }
     }
   }
 
@@ -349,20 +374,19 @@ public class VRAClient implements Serializable {
     @Override
     public Date read(final JsonReader in) throws IOException {
       try {
-        switch (in.peek()) {
-          case NULL:
-            in.nextNull();
-            return null;
-          default:
-            final String date = in.nextString();
-            try {
-              if (dateFormat != null) {
-                return dateFormat.parse(date);
-              }
-              return ISO8601Utils.parse(date, new ParsePosition(0));
-            } catch (final ParseException e) {
-              throw new JsonParseException(e);
+        if (in.peek() == JsonToken.NULL) {
+          in.nextNull();
+          return null;
+        } else {
+          final String date = in.nextString();
+          try {
+            if (dateFormat != null) {
+              return dateFormat.parse(date);
             }
+            return ISO8601Utils.parse(date, new ParsePosition(0));
+          } catch (final ParseException e) {
+            throw new JsonParseException(e);
+          }
         }
       } catch (final IllegalArgumentException e) {
         throw new JsonParseException(e);

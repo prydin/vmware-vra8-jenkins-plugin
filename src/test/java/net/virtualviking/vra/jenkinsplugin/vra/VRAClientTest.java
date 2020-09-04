@@ -2,6 +2,7 @@ package net.virtualviking.vra.jenkinsplugin.vra;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
@@ -148,5 +149,11 @@ public class VRAClientTest {
     dep = client.waitForCatalogDeployment(resp[0].getDeploymentId(), 300000);
     assertNotNull(dep);
     assertNotNull(dep.getId());
+
+    final String ip = client.waitForIPAddress(resp[0].getDeploymentId(), "UbuntuMachine", 300000);
+    assertNotNull(ip);
+    assertTrue(
+        ip.matches(
+            "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"));
   }
 }

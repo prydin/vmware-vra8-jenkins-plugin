@@ -1,5 +1,7 @@
-package net.virtualviking.vra.jenkinsplugin;
+package net.virtualviking.vra.jenkinsplugin.pipeline;
 
+import java.io.Serializable;
+import net.virtualviking.vra.jenkinsplugin.GlobalVRAConfiguration;
 import net.virtualviking.vra.jenkinsplugin.util.SecretHelper;
 import net.virtualviking.vra.jenkinsplugin.vra.VRAClient;
 import net.virtualviking.vra.jenkinsplugin.vra.VRAException;
@@ -7,8 +9,9 @@ import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.workflow.steps.Step;
 import org.kohsuke.stapler.DataBoundSetter;
 
-abstract class AbstractStep extends Step {
-  protected String url;
+abstract class AbstractStep extends Step implements Serializable {
+  private static final long serialVersionUID = 4802272043548740707L;
+  protected String vraURL;
 
   protected String token;
 
@@ -18,19 +21,19 @@ abstract class AbstractStep extends Step {
     if (cachedClient != null) {
       return cachedClient;
     }
-    return new VRAClient(getUrl(), getToken());
+    return new VRAClient(getVraURL(), getToken());
   }
 
-  public String getUrl() {
-    if (StringUtils.isNotBlank(url)) {
-      return url;
+  public String getVraURL() {
+    if (StringUtils.isNotBlank(vraURL)) {
+      return vraURL;
     }
     return GlobalVRAConfiguration.get().getVraURL();
   }
 
   @DataBoundSetter
-  public void setUrl(final String url) {
-    this.url = url;
+  public void setVraURL(final String vraURL) {
+    this.vraURL = vraURL;
   }
 
   public String getToken() {

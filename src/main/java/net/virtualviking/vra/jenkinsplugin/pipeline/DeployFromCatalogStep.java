@@ -1,4 +1,4 @@
-package net.virtualviking.vra.jenkinsplugin;
+package net.virtualviking.vra.jenkinsplugin.pipeline;
 
 import com.google.common.collect.ImmutableSet;
 import hudson.Extension;
@@ -14,7 +14,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
 public class DeployFromCatalogStep extends AbstractStep implements Serializable {
-  @Extension public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
   private static final long serialVersionUID = -4841698058313077987L;
   private long timeout = 300;
   private String projectName;
@@ -105,10 +104,10 @@ public class DeployFromCatalogStep extends AbstractStep implements Serializable 
     this.timeout = timeout;
   }
 
-  @Override
-  public StepDescriptor getDescriptor() {
-    return DESCRIPTOR;
-  }
+  // @Override
+  // public StepDescriptor getDescriptor() {
+  // return DESCRIPTOR;
+  // }
 
   @Extension
   public static class DescriptorImpl extends StepDescriptor {
@@ -128,7 +127,7 @@ public class DeployFromCatalogStep extends AbstractStep implements Serializable 
     @Override
     @Nonnull
     public String getDisplayName() {
-      return "Deploy from catalog";
+      return "vRA: Deploy from catalog";
     }
   }
 }

@@ -1,4 +1,4 @@
-package net.virtualviking.vra.jenkinsplugin;
+package net.virtualviking.vra.jenkinsplugin.pipeline;
 
 import static net.virtualviking.vra.jenkinsplugin.util.ValueCheckers.notBlank;
 

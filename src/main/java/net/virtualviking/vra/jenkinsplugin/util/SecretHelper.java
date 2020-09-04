@@ -19,7 +19,7 @@ public class SecretHelper {
     final CredentialsMatcher matcher = CredentialsMatchers.withId(credentialsId);
 
     return Optional.ofNullable(CredentialsMatchers.firstOrNull(credentials, matcher))
-        .flatMap(creds -> Optional.ofNullable(creds.getSecret()))
-        .flatMap(secret -> Optional.ofNullable(secret.getPlainText()));
+        .flatMap(creds -> Optional.of(creds.getSecret()))
+        .flatMap(secret -> Optional.of(secret.getPlainText()));
   }
 }

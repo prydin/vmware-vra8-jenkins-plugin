@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
+    <f:entry field="vraURL" title="${%vRealize Automation API URL}">
+        <f:textbox/>
+    </f:entry>
+    <f:entry field="token" title="${%API Token}">
+        <f:textbox/>
+    </f:entry>
+    <f:entry field="project" title="${%Project Name}">
+        <f:textbox/>
+    </f:entry>
+    <f:entry field="catalogItemName" title="${%Catalog Item Name}">
+        <f:textbox/>
+    </f:entry>
+    <f:entry field="version" title="${%Catalog Item Version}">
+        <f:textbox/>
+    </f:entry>
+    <f:entry field="deploymentName" title="${%Deployment Name}">
+        <f:textbox/>
+    </f:entry>
+    <f:entry field="reason" title="${%Deployment Reason}">
+        <f:textbox/>
+    </f:entry>
+    <f:entry field="inputs" title="${%Inputs as JSON}">
+        <f:textbox/>
+    </f:entry>
+</j:jelly>
