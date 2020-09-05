@@ -104,11 +104,6 @@ public class DeployFromCatalogStep extends AbstractStep implements Serializable 
     this.timeout = timeout;
   }
 
-  // @Override
-  // public StepDescriptor getDescriptor() {
-  // return DESCRIPTOR;
-  // }
-
   @Extension
   public static class DescriptorImpl extends StepDescriptor {
 
@@ -121,7 +116,7 @@ public class DeployFromCatalogStep extends AbstractStep implements Serializable 
 
     @Override
     public String getFunctionName() {
-      return "deployFromCatalog";
+      return "vraDeployFromCatalog";
     }
 
     @Override

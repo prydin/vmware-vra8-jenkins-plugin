@@ -11,7 +11,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.RestartableJenkinsRule;
 
-public class DeployFromCatalogStepTest {
+public class WaitForAddressStepTest {
   @Rule public RestartableJenkinsRule rr = new RestartableJenkinsRule();
 
   @Test
@@ -22,25 +22,17 @@ public class DeployFromCatalogStepTest {
           final Map<String, Object> config = new HashMap<>();
           config.put("vraURL", "vraURL");
           config.put("token", "token");
-          config.put("catalogItemName", "catalogItemName");
-          config.put("projectName", "projectName");
-          config.put("deploymentName", "deploymentName");
-          config.put("reason", "reason");
-          config.put("inputs", "inputs");
-          config.put("version", "version");
+          config.put("deploymentId", "deploymentId");
+          config.put("resourceName", "resourceName");
           config.put("timeout", 1L);
-          final DescribableModel<DeployFromCatalogStep> model =
-              new DescribableModel<>(DeployFromCatalogStep.class);
-          DeployFromCatalogStep step = model.instantiate(config, StreamTaskListener.fromStderr());
+          final DescribableModel<WaitForAddressStep> model =
+              new DescribableModel<>(WaitForAddressStep.class);
+          WaitForAddressStep step = model.instantiate(config, StreamTaskListener.fromStderr());
           step = sct.configRoundTrip(step);
           // assertEquals("vraURL", step.getVraURL());
           // assertEquals("token", step.getToken());
-          assertEquals("catalogItemName", step.getCatalogItemName());
-          assertEquals("projectName", step.getProjectName());
-          assertEquals("deploymentName", step.getDeploymentName());
-          assertEquals("reason", step.getReason());
-          assertEquals("inputs", step.getInputs());
-          assertEquals("version", step.getVersion());
+          assertEquals("resourceName", step.getResourceName());
+          assertEquals("deploymentId", step.getDeploymentId());
           assertEquals(1L, step.getTimeout());
           model.uninstantiate2_(step);
         });

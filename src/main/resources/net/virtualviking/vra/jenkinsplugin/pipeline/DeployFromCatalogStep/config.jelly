@@ -7,7 +7,7 @@
     <f:entry field="token" title="${%API Token}">
         <f:textbox/>
     </f:entry>
-    <f:entry field="project" title="${%Project Name}">
+    <f:entry field="projectName" title="${%Project Name}">
         <f:textbox/>
     </f:entry>
     <f:entry field="catalogItemName" title="${%Catalog Item Name}">
@@ -22,7 +22,10 @@
     <f:entry field="reason" title="${%Deployment Reason}">
         <f:textbox/>
     </f:entry>
-    <f:entry field="inputs" title="${%Inputs as JSON}">
-        <f:textbox/>
+    <f:entry field="timeout" title="${%vRealize Automation API Timeout}">
+        <f:number/>
+    </f:entry>
+    <f:entry field="inputs" title="${%Blueprint Inputs as JSON}">
+        <f:textarea/>
     </f:entry>
 </j:jelly>
