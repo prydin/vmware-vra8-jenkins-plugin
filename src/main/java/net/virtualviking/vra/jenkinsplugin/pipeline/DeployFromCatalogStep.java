@@ -15,7 +15,7 @@ import org.kohsuke.stapler.DataBoundSetter;
 
 public class DeployFromCatalogStep extends AbstractStep implements Serializable {
   private static final long serialVersionUID = -4841698058313077987L;
-  private long timeout = 300;
+  private int timeout = 300;
   private String projectName;
   private String catalogItemName;
   private String version;
@@ -95,12 +95,12 @@ public class DeployFromCatalogStep extends AbstractStep implements Serializable 
     this.count = count;
   }
 
-  public long getTimeout() {
+  public int getTimeout() {
     return timeout;
   }
 
   @DataBoundSetter
-  void setTimeout(final long timeout) {
+  public void setTimeout(final int timeout) {
     this.timeout = timeout;
   }
 

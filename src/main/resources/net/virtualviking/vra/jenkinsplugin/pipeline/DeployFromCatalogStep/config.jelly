@@ -7,6 +7,9 @@
     <f:entry field="token" title="${%API Token}">
         <f:textbox/>
     </f:entry>
+    <f:entry field="count" title="${%Number of copies to deploy}">
+        <f:number/>
+    </f:entry>
     <f:entry field="projectName" title="${%Project Name}">
         <f:textbox/>
     </f:entry>
@@ -22,7 +25,7 @@
     <f:entry field="reason" title="${%Deployment Reason}">
         <f:textbox/>
     </f:entry>
-    <f:entry field="timeout" title="${%vRealize Automation API Timeout}">
+    <f:entry field="timeout" title="${%vRealize Automation API Timeout}" value="300">
         <f:number/>
     </f:entry>
     <f:entry field="inputs" title="${%Blueprint Inputs as JSON}">

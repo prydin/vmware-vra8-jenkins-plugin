@@ -29,6 +29,7 @@ public class DeployFromCatalogStepTest {
           config.put("inputs", "inputs");
           config.put("version", "version");
           config.put("timeout", 1L);
+          config.put("count", 42L);
           final DescribableModel<DeployFromCatalogStep> model =
               new DescribableModel<>(DeployFromCatalogStep.class);
           DeployFromCatalogStep step = model.instantiate(config, StreamTaskListener.fromStderr());
@@ -42,6 +43,7 @@ public class DeployFromCatalogStepTest {
           assertEquals("inputs", step.getInputs());
           assertEquals("version", step.getVersion());
           assertEquals(1L, step.getTimeout());
+          assertEquals(42, step.getCount());
           model.uninstantiate2_(step);
         });
   }

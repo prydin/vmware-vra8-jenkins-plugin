@@ -23,7 +23,6 @@ import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -40,6 +39,7 @@ import net.virtualviking.vra.jenkinsplugin.model.catalog.PageOfCatalogItem;
 import net.virtualviking.vra.jenkinsplugin.model.catalog.Resource;
 import net.virtualviking.vra.jenkinsplugin.model.iaas.Project;
 import net.virtualviking.vra.jenkinsplugin.model.iaas.ProjectResult;
+import net.virtualviking.vra.jenkinsplugin.util.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpDelete;
@@ -93,18 +93,6 @@ public class VRAClient implements Serializable {
     }
   }
 
-  private static Map<String, String> mapOf(final String... s) throws IllegalArgumentException {
-    if (s.length % 2 != 0) {
-      throw new IllegalArgumentException("Map inputs must be an even number");
-    }
-    final Map<String, String> map = new HashMap<>();
-
-    for (int i = 0; i < s.length; i += 2) {
-      map.put(s[i], s[i + 1]);
-    }
-    return map;
-  }
-
   private static String buildQuery(final Map<String, String> queries)
       throws UnsupportedEncodingException {
     if (queries == null) {
@@ -127,7 +115,10 @@ public class VRAClient implements Serializable {
 
   public Blueprint getBlueprintByName(final String name) throws VRAException {
     final PageOfBlueprint page =
-        get(baseUrl + "/blueprint/api/blueprints", mapOf("name", name), PageOfBlueprint.class);
+        get(
+            baseUrl + "/blueprint/api/blueprints",
+            MapUtils.mapOf("name", name),
+            PageOfBlueprint.class);
     if (page.isEmpty()) {
       return null;
     }
@@ -144,7 +135,7 @@ public class VRAClient implements Serializable {
     final PageOfCatalogItem page =
         get(
             baseUrl + "/catalog/api/items",
-            mapOf("search", name, "size", "1000000"),
+            MapUtils.mapOf("search", name, "size", "1000000"),
             PageOfCatalogItem.class);
     final List<CatalogItem> content = page.getContent();
     return content.stream().filter((c) -> c.getName().equals(name)).findFirst().orElse(null);
@@ -154,7 +145,7 @@ public class VRAClient implements Serializable {
     final ProjectResult projs =
         get(
             baseUrl + "/iaas/api/projects",
-            mapOf("$filter", "name eq '" + name + "'"),
+            MapUtils.mapOf("$filter", "name eq '" + name + "'"),
             ProjectResult.class);
     checkResponseSingleton(projs.getContent());
     return projs.getContent().get(0);
@@ -168,7 +159,8 @@ public class VRAClient implements Serializable {
     return get(baseUrl + "/catalog/api/items/" + id, null, CatalogItem.class);
   }
 
-  public String waitForIPAddress(final String deploymentId, final String resourceName, final long timeout)
+  public String waitForIPAddress(
+      final String deploymentId, final String resourceName, final long timeout)
       throws VRAException, InterruptedException, TimeoutException {
     final long start = System.currentTimeMillis();
     Deployment dep = waitForCatalogDeployment(deploymentId, timeout);
@@ -252,7 +244,7 @@ public class VRAClient implements Serializable {
       throws VRAException {
     return get(
         baseUrl + "/deployment/api/deployments/" + deploymentId,
-        mapOf("expandResources", Boolean.toString(expandResources)),
+        MapUtils.mapOf("expandResources", Boolean.toString(expandResources)),
         Deployment.class);
   }
 

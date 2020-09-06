@@ -4,8 +4,11 @@ import static net.virtualviking.vra.jenkinsplugin.util.ValueCheckers.notBlank;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import hudson.model.TaskListener;
+import java.io.PrintStream;
 import java.io.Serializable;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -31,6 +34,7 @@ public class DeployFromCatalogExecution extends SynchronousNonBlockingStepExecut
 
   @Override
   protected Deployment[] run() throws Exception {
+    final PrintStream log = getContext().get(TaskListener.class).getLogger();
     final Map<String, String> inputMap;
     final String inputs = step.getInputs();
     if (!StringUtils.isBlank(inputs)) {
@@ -59,13 +63,18 @@ public class DeployFromCatalogExecution extends SynchronousNonBlockingStepExecut
             step.getReason(),
             inputMap,
             step.getCount());
+    log.println("Successfully requested deployment. Deployment ids: " + Arrays.toString(response));
+    log.println("Waiting for deployment to complete");
 
     // Wait for all deployments to finish
     final Deployment[] deps = new Deployment[response.length];
     int i = 0;
     for (final CatalogItemRequestResponse cirr : response) {
       deps[i++] = client.waitForCatalogDeployment(cirr.getDeploymentId(), step.getTimeout() * 1000);
+      log.println(
+          "Deployment " + cirr.getDeploymentName() + "(" + cirr.getDeploymentId() + ") finished");
     }
+    log.println("All deployments finished!");
     return deps;
   }
 }
