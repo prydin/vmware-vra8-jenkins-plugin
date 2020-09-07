@@ -13,7 +13,7 @@ import net.virtualviking.vra.jenkinsplugin.model.catalog.Deployment;
 import net.virtualviking.vra.jenkinsplugin.model.iaas.Project;
 import org.junit.Test;
 
-public class VRAClientTest {
+public class VraApiTest {
   private static final String blueprintName = "plain-ubuntu-18";
 
   private static final String catalogItemName = "plain-ubuntu-18";
@@ -29,7 +29,7 @@ public class VRAClientTest {
       System.err.println("VRA_URL not set. Skipping test");
       return;
     }
-    final VRAClient client = new VRAClient(url, System.getenv("VRA_TOKEN"));
+    final VraApi client = new VraApi(url, System.getenv("VRA_TOKEN"));
     assertNotNull(client);
   }
 
@@ -40,7 +40,7 @@ public class VRAClientTest {
       System.err.println("VRA_URL not set. Skipping test");
       return;
     }
-    final VRAClient client = new VRAClient(url, System.getenv("VRA_TOKEN"));
+    final VraApi client = new VraApi(url, System.getenv("VRA_TOKEN"));
     final Blueprint bp = client.getBlueprintByName(blueprintName);
     assertNotNull(bp);
     assertEquals(blueprintName, bp.getName());
@@ -53,7 +53,7 @@ public class VRAClientTest {
       System.err.println("VRA_URL not set. Skipping test");
       return;
     }
-    final VRAClient client = new VRAClient(url, System.getenv("VRA_TOKEN"));
+    final VraApi client = new VraApi(url, System.getenv("VRA_TOKEN"));
     Blueprint bp = client.getBlueprintByName(blueprintName);
     assertNotNull(bp);
     assertEquals(blueprintName, bp.getName());
@@ -69,7 +69,7 @@ public class VRAClientTest {
       System.err.println("VRA_URL not set. Skipping test");
       return;
     }
-    final VRAClient client = new VRAClient(url, System.getenv("VRA_TOKEN"));
+    final VraApi client = new VraApi(url, System.getenv("VRA_TOKEN"));
     final CatalogItem ci = client.getCatalogItemByName(catalogItemName);
     assertNotNull(ci);
     assertEquals(catalogItemName, ci.getName());
@@ -82,7 +82,7 @@ public class VRAClientTest {
       System.err.println("VRA_URL not set. Skipping test");
       return;
     }
-    final VRAClient client = new VRAClient(url, System.getenv("VRA_TOKEN"));
+    final VraApi client = new VraApi(url, System.getenv("VRA_TOKEN"));
     CatalogItem ci = client.getCatalogItemByName(catalogItemName);
     assertNotNull(ci);
     assertEquals(catalogItemName, ci.getName());
@@ -98,7 +98,7 @@ public class VRAClientTest {
       System.err.println("VRA_URL not set. Skipping test");
       return;
     }
-    final VRAClient client = new VRAClient(url, System.getenv("VRA_TOKEN"));
+    final VraApi client = new VraApi(url, System.getenv("VRA_TOKEN"));
     final Project proj = client.getProjectByName(projectName);
     assertNotNull(proj);
     assertEquals(projectName, proj.getName());
@@ -111,7 +111,7 @@ public class VRAClientTest {
       System.err.println("VRA_URL not set. Skipping test");
       return;
     }
-    final VRAClient client = new VRAClient(url, System.getenv("VRA_TOKEN"));
+    final VraApi client = new VraApi(url, System.getenv("VRA_TOKEN"));
     Project proj = client.getProjectByName(projectName);
     assertNotNull(proj);
     assertEquals(projectName, proj.getName());
@@ -127,7 +127,7 @@ public class VRAClientTest {
       System.err.println("VRA_URL not set. Skipping test");
       return;
     }
-    final VRAClient client = new VRAClient(url, System.getenv("VRA_TOKEN"));
+    final VraApi client = new VraApi(url, System.getenv("VRA_TOKEN"));
     final String depName = "Test " + UUID.randomUUID().toString();
     final CatalogItemRequestResponse[] resp =
         client.deployFromCatalog(

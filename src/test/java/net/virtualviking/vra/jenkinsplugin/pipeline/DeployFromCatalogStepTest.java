@@ -9,10 +9,20 @@ import org.jenkinsci.plugins.structs.describable.DescribableModel;
 import org.jenkinsci.plugins.workflow.steps.StepConfigTester;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.jvnet.hudson.test.RestartableJenkinsRule;
+import org.mockito.junit.MockitoJUnitRunner;
 
+@RunWith(MockitoJUnitRunner.class)
 public class DeployFromCatalogStepTest {
   @Rule public RestartableJenkinsRule rr = new RestartableJenkinsRule();
+  /*
+
+  @InjectMocks DeployFromCatalogStep deployFromCatalogStep = new DeployFromCatalogStep();
+
+  @Spy @InjectMocks DeployFromCatalogExecution deployFromCatalogExecution;
+
+  @Mock VraClient mockClient; */
 
   @Test
   public void configRoundTrip() {

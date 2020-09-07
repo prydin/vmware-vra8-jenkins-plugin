@@ -3,8 +3,8 @@ package net.virtualviking.vra.jenkinsplugin.pipeline;
 import java.io.Serializable;
 import net.virtualviking.vra.jenkinsplugin.GlobalVRAConfiguration;
 import net.virtualviking.vra.jenkinsplugin.util.SecretHelper;
-import net.virtualviking.vra.jenkinsplugin.vra.VRAClient;
 import net.virtualviking.vra.jenkinsplugin.vra.VRAException;
+import net.virtualviking.vra.jenkinsplugin.vra.VraApi;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.workflow.steps.Step;
 import org.kohsuke.stapler.DataBoundSetter;
@@ -15,13 +15,13 @@ abstract class AbstractStep extends Step implements Serializable {
 
   protected String token;
 
-  private VRAClient cachedClient;
+  private VraApi cachedClient;
 
-  public synchronized VRAClient getClient() throws VRAException {
+  public synchronized VraApi getClient() throws VRAException {
     if (cachedClient != null) {
       return cachedClient;
     }
-    return new VRAClient(getVraURL(), getToken());
+    return new VraApi(getVraURL(), getToken());
   }
 
   public String getVraURL() {

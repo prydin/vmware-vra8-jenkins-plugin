@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 public class MapUtils {
   public static Object mappify(final Object o) {
@@ -24,6 +25,9 @@ public class MapUtils {
         || o instanceof Character
         || o instanceof Boolean) {
       return o;
+    }
+    if (o instanceof UUID) {
+      return o.toString();
     }
     if (clazz.isEnum()) {
       return ((Enum) o).name();

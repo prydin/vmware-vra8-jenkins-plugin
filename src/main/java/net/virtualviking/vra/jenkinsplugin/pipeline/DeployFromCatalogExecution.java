@@ -15,12 +15,13 @@ import java.util.UUID;
 import javax.annotation.Nonnull;
 import net.virtualviking.vra.jenkinsplugin.model.catalog.CatalogItemRequestResponse;
 import net.virtualviking.vra.jenkinsplugin.model.catalog.Deployment;
-import net.virtualviking.vra.jenkinsplugin.vra.VRAClient;
+import net.virtualviking.vra.jenkinsplugin.util.MapUtils;
+import net.virtualviking.vra.jenkinsplugin.vra.VraApi;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.jenkinsci.plugins.workflow.steps.SynchronousNonBlockingStepExecution;
 
-public class DeployFromCatalogExecution extends SynchronousNonBlockingStepExecution<Deployment[]>
+public class DeployFromCatalogExecution extends SynchronousNonBlockingStepExecution<Object>
     implements Serializable {
   private static final long serialVersionUID = -2997964521533971915L;
   private static final Type mapStringString = new TypeToken<Map<String, String>>() {}.getType();
@@ -33,7 +34,7 @@ public class DeployFromCatalogExecution extends SynchronousNonBlockingStepExecut
   }
 
   @Override
-  protected Deployment[] run() throws Exception {
+  protected Object run() throws Exception {
     final PrintStream log = getContext().get(TaskListener.class).getLogger();
     final Map<String, String> inputMap;
     final String inputs = step.getInputs();
@@ -53,7 +54,7 @@ public class DeployFromCatalogExecution extends SynchronousNonBlockingStepExecut
     if (deploymentName.contains("#")) {
       deploymentName = deploymentName.replace("#", UUID.randomUUID().toString());
     }
-    final VRAClient client = step.getClient();
+    final VraApi client = step.getClient();
     final CatalogItemRequestResponse[] response =
         client.deployFromCatalog(
             notBlank(step.getCatalogItemName(), "catalogItemName"),
@@ -75,6 +76,6 @@ public class DeployFromCatalogExecution extends SynchronousNonBlockingStepExecut
           "Deployment " + cirr.getDeploymentName() + "(" + cirr.getDeploymentId() + ") finished");
     }
     log.println("All deployments finished!");
-    return deps;
+    return MapUtils.mappify(deps);
   }
 }

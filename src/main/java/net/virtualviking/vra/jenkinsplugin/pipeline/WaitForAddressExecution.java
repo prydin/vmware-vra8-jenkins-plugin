@@ -1,6 +1,6 @@
 package net.virtualviking.vra.jenkinsplugin.pipeline;
 
-import net.virtualviking.vra.jenkinsplugin.vra.VRAClient;
+import net.virtualviking.vra.jenkinsplugin.vra.VraApi;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.jenkinsci.plugins.workflow.steps.SynchronousNonBlockingStepExecution;
 
@@ -16,7 +16,7 @@ public class WaitForAddressExecution extends SynchronousNonBlockingStepExecution
 
   @Override
   protected String run() throws Exception {
-    final VRAClient client = step.getClient();
+    final VraApi client = step.getClient();
     return client.waitForIPAddress(
         step.getDeploymentId(), step.getResourceName(), step.getTimeout() * 1000);
   }
