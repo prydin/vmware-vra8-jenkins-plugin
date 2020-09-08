@@ -21,7 +21,8 @@ abstract class AbstractStep extends Step implements Serializable {
     if (cachedClient != null) {
       return cachedClient;
     }
-    return new VraApi(getVraURL(), getToken());
+    cachedClient = new VraApi(getVraURL(), getToken());
+    return cachedClient;
   }
 
   public String getVraURL() {

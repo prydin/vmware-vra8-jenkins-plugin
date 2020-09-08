@@ -16,30 +16,28 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class DeployFromCatalogStepTest {
   @Rule public RestartableJenkinsRule rr = new RestartableJenkinsRule();
-  /*
 
-  @InjectMocks DeployFromCatalogStep deployFromCatalogStep = new DeployFromCatalogStep();
-
-  @Spy @InjectMocks DeployFromCatalogExecution deployFromCatalogExecution;
-
-  @Mock VraClient mockClient; */
+  private static Map<String, Object> getTestConfig() {
+    final Map<String, Object> config = new HashMap<>();
+    config.put("vraURL", "vraURL");
+    config.put("token", "token");
+    config.put("catalogItemName", "catalogItemName");
+    config.put("projectName", "projectName");
+    config.put("deploymentName", "deploymentName");
+    config.put("reason", "reason");
+    config.put("inputs", "inputs");
+    config.put("version", "version");
+    config.put("timeout", 1L);
+    config.put("count", 42L);
+    return config;
+  }
 
   @Test
-  public void configRoundTrip() {
+  public void testConfigRoundTrip() {
     rr.then(
         r -> {
           final StepConfigTester sct = new StepConfigTester(rr.j);
-          final Map<String, Object> config = new HashMap<>();
-          config.put("vraURL", "vraURL");
-          config.put("token", "token");
-          config.put("catalogItemName", "catalogItemName");
-          config.put("projectName", "projectName");
-          config.put("deploymentName", "deploymentName");
-          config.put("reason", "reason");
-          config.put("inputs", "inputs");
-          config.put("version", "version");
-          config.put("timeout", 1L);
-          config.put("count", 42L);
+          final Map<String, Object> config = getTestConfig();
           final DescribableModel<DeployFromCatalogStep> model =
               new DescribableModel<>(DeployFromCatalogStep.class);
           DeployFromCatalogStep step = model.instantiate(config, StreamTaskListener.fromStderr());
