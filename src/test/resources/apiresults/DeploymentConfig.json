@@ -1,0 +1,10 @@
+{
+  "catalogItemName": "plain-ubuntu-18",
+  "version": "6",
+  "projectName": "Pontus Project",
+  "deploymentName": "Jenkins-#",
+  "inputs": {
+    "username": "test"
+  },
+  "count": 1
+}
