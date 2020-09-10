@@ -23,6 +23,6 @@ public class DeleteDeploymentExecution extends SynchronousNonBlockingStepExecuti
     final String depId = step.resolveDeploymentId();
     final DeploymentRequest dep = client.deleteCatalogDeployment(depId);
     return MapUtils.mappify(
-        client.waitForRequestCompletion(dep.getId().toString(), step.getTimeout()));
+        client.waitForRequestCompletion(dep.getId().toString(), step.getTimeout() * 1000));
   }
 }

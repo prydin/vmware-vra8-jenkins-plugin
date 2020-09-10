@@ -21,7 +21,11 @@ node {
             deploymentId: dep[0].id,
             resourceName: 'UbuntuMachine')
     echo "Deployed: $dep[0].id, address: $addr"
-    vraDeleteDeployment(deploymentId: dep[0].id)
+    def dep2 = vraDeleteDeployment(deploymentName: dep[0].name)
+    assert dep2 != null
+    assert dep2.id != null
+    assert dep2.id == dep[0].id
+    assert dep2.status == "SUCCESSFUL";
 }
 
 

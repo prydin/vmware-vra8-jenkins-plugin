@@ -22,15 +22,7 @@ node {
     assert dep2 != null
     assert dep2.id != null
     assert dep2.id == dep[0].id
-    println "Delete request ID: ${dep2}"
-
-    def dep3 = vraGetDeployment(deploymentId: dep[0].id)
-    println dep3
-    assert dep3 != null
-    assert dep3.id != null
-    assert dep3.id == dep[0].id
-    assert !dep3.status.endsWith("_INPROGRESS")
-    assert dep3.deleted
+    assert dep2.status == "SUCCESSFUL";
 }
 
 

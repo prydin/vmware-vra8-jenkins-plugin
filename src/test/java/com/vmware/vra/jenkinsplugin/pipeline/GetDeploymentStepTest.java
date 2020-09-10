@@ -14,7 +14,7 @@ import org.jvnet.hudson.test.RestartableJenkinsRule;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GetDeploymentTest {
+public class GetDeploymentStepTest {
   @Rule public RestartableJenkinsRule rr = new RestartableJenkinsRule();
 
   @Test
@@ -55,7 +55,7 @@ public class GetDeploymentTest {
           step = sct.configRoundTrip(step);
           // assertEquals("vraURL", step.getVraURL());
           // assertEquals("token", step.getToken());
-          assertEquals("deploymentName", step.getDeploymentId());
+          assertEquals("deploymentName", step.getDeploymentName());
           assertEquals(1L, step.getTimeout());
           model.uninstantiate2_(step);
         });
