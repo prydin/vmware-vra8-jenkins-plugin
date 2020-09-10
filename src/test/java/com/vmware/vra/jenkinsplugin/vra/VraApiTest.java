@@ -25,13 +25,9 @@ import java.util.concurrent.TimeoutException;
 import org.junit.Test;
 
 public class VraApiTest {
-  private static final String blueprintName = "plain-ubuntu-18";
-
   private static final String catalogItemName = "plain-ubuntu-18";
 
   private static final String projectName = "Pontus Project";
-
-  private static final String blueprintId = "58bc8ef5-7100-4326-b4af-99e4db2ec4da";
 
   private static final String catalogItemId = "563f6b86-e379-3965-81eb-90471da4d688";
 
