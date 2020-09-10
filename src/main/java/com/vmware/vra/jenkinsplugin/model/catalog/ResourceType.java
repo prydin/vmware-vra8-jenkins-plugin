@@ -1,4 +1,28 @@
 /*
+ * Copyright (c) 2020 VMware, Inc
+ *
+ *  SPDX-License-Identifier: MIT
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/*
  * VMware Service Broker API
  * A multi-cloud API for Cloud Automation Services
  *
@@ -27,102 +51,32 @@ import java.util.Objects;
     value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen",
     date = "2020-09-09T18:27:41.063635-04:00[America/New_York]")
 public class ResourceType {
-  /** Optional. Account type to which the resource type belongs to. Example: AWS, Azure etc */
-  @JsonAdapter(AccountTypeEnum.Adapter.class)
-  public enum AccountTypeEnum {
-    AWS("AWS"),
-    AZURE("Azure"),
-    GCP("GCP"),
-    VSPHERE("vSphere"),
-    VSPHERE_CLOUD("vSphere-cloud"),
-    AZURE_EA("Azure-EA"),
-    NSX_V("NSX-V"),
-    NSX_T("NSX-T"),
-    NSX_P("NSX-P"),
-    NSX_P_CLOUD("NSX-P-cloud"),
-    VCLOUD_DIRECTOR("vCloud Director"),
-    VMC("VMC"),
-    PUPPET("Puppet"),
-    ANSIBLE("Ansible");
-
-    private String value;
-
-    AccountTypeEnum(String value) {
-      this.value = value;
-    }
-
-    public String getValue() {
-      return value;
-    }
-
-    @Override
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    public static AccountTypeEnum fromValue(String text) {
-      for (AccountTypeEnum b : AccountTypeEnum.values()) {
-        if (String.valueOf(b.value).equals(text)) {
-          return b;
-        }
-      }
-      return null;
-    }
-
-    public static class Adapter extends TypeAdapter<AccountTypeEnum> {
-      @Override
-      public void write(final JsonWriter jsonWriter, final AccountTypeEnum enumeration)
-          throws IOException {
-        jsonWriter.value(enumeration.getValue());
-      }
-
-      @Override
-      public AccountTypeEnum read(final JsonReader jsonReader) throws IOException {
-        String value = jsonReader.nextString();
-        return AccountTypeEnum.fromValue(String.valueOf(value));
-      }
-    }
-  }
-
   @SerializedName("accountType")
   private AccountTypeEnum accountType = null;
-
   @SerializedName("composable")
   private Boolean composable = null;
-
   @SerializedName("createdAt")
   private Date createdAt = null;
-
   @SerializedName("createdBy")
   private String createdBy = null;
-
   @SerializedName("description")
   private String description = null;
-
   @SerializedName("displayName")
   private String displayName = null;
-
   @SerializedName("id")
   private String id = null;
-
   @SerializedName("name")
   private String name = null;
-
   @SerializedName("orgId")
   private String orgId = null;
-
   @SerializedName("projectId")
   private String projectId = null;
-
   @SerializedName("providerId")
   private String providerId = null;
-
   @SerializedName("schema")
   private Object schema = null;
-
   @SerializedName("updatedAt")
   private Date updatedAt = null;
-
   @SerializedName("updatedBy")
   private String updatedBy = null;
 
@@ -469,5 +423,62 @@ public class ResourceType {
       return "null";
     }
     return o.toString().replace("\n", "\n    ");
+  }
+
+  /** Optional. Account type to which the resource type belongs to. Example: AWS, Azure etc */
+  @JsonAdapter(AccountTypeEnum.Adapter.class)
+  public enum AccountTypeEnum {
+    AWS("AWS"),
+    AZURE("Azure"),
+    GCP("GCP"),
+    VSPHERE("vSphere"),
+    VSPHERE_CLOUD("vSphere-cloud"),
+    AZURE_EA("Azure-EA"),
+    NSX_V("NSX-V"),
+    NSX_T("NSX-T"),
+    NSX_P("NSX-P"),
+    NSX_P_CLOUD("NSX-P-cloud"),
+    VCLOUD_DIRECTOR("vCloud Director"),
+    VMC("VMC"),
+    PUPPET("Puppet"),
+    ANSIBLE("Ansible");
+
+    private String value;
+
+    AccountTypeEnum(String value) {
+      this.value = value;
+    }
+
+    public static AccountTypeEnum fromValue(String text) {
+      for (AccountTypeEnum b : AccountTypeEnum.values()) {
+        if (String.valueOf(b.value).equals(text)) {
+          return b;
+        }
+      }
+      return null;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    public static class Adapter extends TypeAdapter<AccountTypeEnum> {
+      @Override
+      public void write(final JsonWriter jsonWriter, final AccountTypeEnum enumeration)
+          throws IOException {
+        jsonWriter.value(enumeration.getValue());
+      }
+
+      @Override
+      public AccountTypeEnum read(final JsonReader jsonReader) throws IOException {
+        String value = jsonReader.nextString();
+        return AccountTypeEnum.fromValue(String.valueOf(value));
+      }
+    }
   }
 }

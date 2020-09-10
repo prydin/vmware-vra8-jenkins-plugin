@@ -1,3 +1,27 @@
+/*
+ * Copyright (c) 2020 VMware, Inc
+ *
+ *  SPDX-License-Identifier: MIT
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package com.vmware.vra.jenkinsplugin.vra;
 
 import static org.junit.Assert.assertEquals;
@@ -188,6 +212,12 @@ public class VraApiTest {
     assertNotNull(dep.getId());
     assertEquals(resp[0].getDeploymentId(), dep.getId().toString());
 
+    final String ip = client.waitForIPAddress(resp[0].getDeploymentId(), "UbuntuMachine", 300000);
+    assertNotNull(ip);
+    assertTrue(
+        ip.matches(
+            "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"));
+
     final DeploymentRequest dr = client.deleteCatalogDeployment(dep.getId().toString());
     assertNotNull(dr);
     assertNotNull(dr.getId());
@@ -196,12 +226,6 @@ public class VraApiTest {
         client.waitForRequestCompletion(dr.getId().toString(), 300000);
     assertNotNull(deploymentRequest);
     assertNotNull(deploymentRequest.getId());
-
-    final String ip = client.waitForIPAddress(resp[0].getDeploymentId(), "UbuntuMachine", 300000);
-    assertNotNull(ip);
-    assertTrue(
-        ip.matches(
-            "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"));
   }
 
   @Test

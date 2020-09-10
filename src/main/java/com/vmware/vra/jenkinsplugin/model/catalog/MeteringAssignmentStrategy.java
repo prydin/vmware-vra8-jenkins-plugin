@@ -1,4 +1,28 @@
 /*
+ * Copyright (c) 2020 VMware, Inc
+ *
+ *  SPDX-License-Identifier: MIT
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/*
  * VMware Service Broker API
  * A multi-cloud API for Cloud Automation Services
  *
@@ -27,52 +51,6 @@ import java.util.Objects;
     value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen",
     date = "2020-09-09T18:27:41.063635-04:00[America/New_York]")
 public class MeteringAssignmentStrategy {
-  /** Metering Policy Assignment entityType(Strategy) */
-  @JsonAdapter(EntityTypeEnum.Adapter.class)
-  public enum EntityTypeEnum {
-    ALL("ALL"),
-    PROJECT("PROJECT"),
-    CLOUDZONE("CLOUDZONE");
-
-    private String value;
-
-    EntityTypeEnum(String value) {
-      this.value = value;
-    }
-
-    public String getValue() {
-      return value;
-    }
-
-    @Override
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    public static EntityTypeEnum fromValue(String text) {
-      for (EntityTypeEnum b : EntityTypeEnum.values()) {
-        if (String.valueOf(b.value).equals(text)) {
-          return b;
-        }
-      }
-      return null;
-    }
-
-    public static class Adapter extends TypeAdapter<EntityTypeEnum> {
-      @Override
-      public void write(final JsonWriter jsonWriter, final EntityTypeEnum enumeration)
-          throws IOException {
-        jsonWriter.value(enumeration.getValue());
-      }
-
-      @Override
-      public EntityTypeEnum read(final JsonReader jsonReader) throws IOException {
-        String value = jsonReader.nextString();
-        return EntityTypeEnum.fromValue(String.valueOf(value));
-      }
-    }
-  }
-
   @SerializedName("entityType")
   private EntityTypeEnum entityType = null;
 
@@ -130,5 +108,51 @@ public class MeteringAssignmentStrategy {
       return "null";
     }
     return o.toString().replace("\n", "\n    ");
+  }
+
+  /** Metering Policy Assignment entityType(Strategy) */
+  @JsonAdapter(EntityTypeEnum.Adapter.class)
+  public enum EntityTypeEnum {
+    ALL("ALL"),
+    PROJECT("PROJECT"),
+    CLOUDZONE("CLOUDZONE");
+
+    private String value;
+
+    EntityTypeEnum(String value) {
+      this.value = value;
+    }
+
+    public static EntityTypeEnum fromValue(String text) {
+      for (EntityTypeEnum b : EntityTypeEnum.values()) {
+        if (String.valueOf(b.value).equals(text)) {
+          return b;
+        }
+      }
+      return null;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    public static class Adapter extends TypeAdapter<EntityTypeEnum> {
+      @Override
+      public void write(final JsonWriter jsonWriter, final EntityTypeEnum enumeration)
+          throws IOException {
+        jsonWriter.value(enumeration.getValue());
+      }
+
+      @Override
+      public EntityTypeEnum read(final JsonReader jsonReader) throws IOException {
+        String value = jsonReader.nextString();
+        return EntityTypeEnum.fromValue(String.valueOf(value));
+      }
+    }
   }
 }

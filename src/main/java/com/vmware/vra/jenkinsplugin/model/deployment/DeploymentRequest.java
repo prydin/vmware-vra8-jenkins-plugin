@@ -1,4 +1,28 @@
 /*
+ * Copyright (c) 2020 VMware, Inc
+ *
+ *  SPDX-License-Identifier: MIT
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/*
  * VMware Service Broker API
  * A multi-cloud API for Cloud Automation Services
  *
@@ -85,66 +109,10 @@ public class DeploymentRequest {
 
   @SerializedName("resourceType")
   private String resourceType = null;
-
-  /** Request overall execution status. */
-  @JsonAdapter(StatusEnum.Adapter.class)
-  public enum StatusEnum {
-    CREATED("CREATED"),
-    PENDING("PENDING"),
-    INITIALIZATION("INITIALIZATION"),
-    APPROVAL_PENDING("APPROVAL_PENDING"),
-    INPROGRESS("INPROGRESS"),
-    COMPLETION("COMPLETION"),
-    APPROVAL_REJECTED("APPROVAL_REJECTED"),
-    ABORTED("ABORTED"),
-    SUCCESSFUL("SUCCESSFUL"),
-    FAILED("FAILED");
-
-    private String value;
-
-    StatusEnum(String value) {
-      this.value = value;
-    }
-
-    public String getValue() {
-      return value;
-    }
-
-    @Override
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    public static StatusEnum fromValue(String text) {
-      for (StatusEnum b : StatusEnum.values()) {
-        if (String.valueOf(b.value).equals(text)) {
-          return b;
-        }
-      }
-      return null;
-    }
-
-    public static class Adapter extends TypeAdapter<StatusEnum> {
-      @Override
-      public void write(final JsonWriter jsonWriter, final StatusEnum enumeration)
-          throws IOException {
-        jsonWriter.value(enumeration.getValue());
-      }
-
-      @Override
-      public StatusEnum read(final JsonReader jsonReader) throws IOException {
-        String value = jsonReader.nextString();
-        return StatusEnum.fromValue(String.valueOf(value));
-      }
-    }
-  }
-
   @SerializedName("status")
   private StatusEnum status = null;
-
   @SerializedName("totalTasks")
   private Integer totalTasks = null;
-
   @SerializedName("updatedAt")
   private Date updatedAt = null;
 
@@ -665,5 +633,58 @@ public class DeploymentRequest {
       return "null";
     }
     return o.toString().replace("\n", "\n    ");
+  }
+
+  /** Request overall execution status. */
+  @JsonAdapter(StatusEnum.Adapter.class)
+  public enum StatusEnum {
+    CREATED("CREATED"),
+    PENDING("PENDING"),
+    INITIALIZATION("INITIALIZATION"),
+    APPROVAL_PENDING("APPROVAL_PENDING"),
+    INPROGRESS("INPROGRESS"),
+    COMPLETION("COMPLETION"),
+    APPROVAL_REJECTED("APPROVAL_REJECTED"),
+    ABORTED("ABORTED"),
+    SUCCESSFUL("SUCCESSFUL"),
+    FAILED("FAILED");
+
+    private String value;
+
+    StatusEnum(String value) {
+      this.value = value;
+    }
+
+    public static StatusEnum fromValue(String text) {
+      for (StatusEnum b : StatusEnum.values()) {
+        if (String.valueOf(b.value).equals(text)) {
+          return b;
+        }
+      }
+      return null;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    public static class Adapter extends TypeAdapter<StatusEnum> {
+      @Override
+      public void write(final JsonWriter jsonWriter, final StatusEnum enumeration)
+          throws IOException {
+        jsonWriter.value(enumeration.getValue());
+      }
+
+      @Override
+      public StatusEnum read(final JsonReader jsonReader) throws IOException {
+        String value = jsonReader.nextString();
+        return StatusEnum.fromValue(String.valueOf(value));
+      }
+    }
   }
 }

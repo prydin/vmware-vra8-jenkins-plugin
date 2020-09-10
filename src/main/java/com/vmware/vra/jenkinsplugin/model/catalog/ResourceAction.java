@@ -1,4 +1,28 @@
 /*
+ * Copyright (c) 2020 VMware, Inc
+ *
+ *  SPDX-License-Identifier: MIT
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/*
  * VMware Service Broker API
  * A multi-cloud API for Cloud Automation Services
  *
@@ -28,81 +52,26 @@ import java.util.Objects;
     value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen",
     date = "2020-09-09T18:27:41.063635-04:00[America/New_York]")
 public class ResourceAction {
-  /** Resource action type */
-  @JsonAdapter(ActionTypeEnum.Adapter.class)
-  public enum ActionTypeEnum {
-    ACTION("RESOURCE_ACTION"),
-    EXTENSION("RESOURCE_EXTENSION");
-
-    private String value;
-
-    ActionTypeEnum(String value) {
-      this.value = value;
-    }
-
-    public String getValue() {
-      return value;
-    }
-
-    @Override
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    public static ActionTypeEnum fromValue(String text) {
-      for (ActionTypeEnum b : ActionTypeEnum.values()) {
-        if (String.valueOf(b.value).equals(text)) {
-          return b;
-        }
-      }
-      return null;
-    }
-
-    public static class Adapter extends TypeAdapter<ActionTypeEnum> {
-      @Override
-      public void write(final JsonWriter jsonWriter, final ActionTypeEnum enumeration)
-          throws IOException {
-        jsonWriter.value(enumeration.getValue());
-      }
-
-      @Override
-      public ActionTypeEnum read(final JsonReader jsonReader) throws IOException {
-        String value = jsonReader.nextString();
-        return ActionTypeEnum.fromValue(String.valueOf(value));
-      }
-    }
-  }
-
   @SerializedName("actionType")
   private ActionTypeEnum actionType = null;
-
   @SerializedName("dependents")
   private List<String> dependents = null;
-
   @SerializedName("description")
   private String description = null;
-
   @SerializedName("displayName")
   private String displayName = null;
-
   @SerializedName("formDefinition")
   private FormDefinition formDefinition = null;
-
   @SerializedName("id")
   private String id = null;
-
   @SerializedName("name")
   private String name = null;
-
   @SerializedName("orgId")
   private String orgId = null;
-
   @SerializedName("projectId")
   private String projectId = null;
-
   @SerializedName("schema")
   private Object schema = null;
-
   @SerializedName("valid")
   private Boolean valid = null;
 
@@ -389,5 +358,50 @@ public class ResourceAction {
       return "null";
     }
     return o.toString().replace("\n", "\n    ");
+  }
+
+  /** Resource action type */
+  @JsonAdapter(ActionTypeEnum.Adapter.class)
+  public enum ActionTypeEnum {
+    ACTION("RESOURCE_ACTION"),
+    EXTENSION("RESOURCE_EXTENSION");
+
+    private String value;
+
+    ActionTypeEnum(String value) {
+      this.value = value;
+    }
+
+    public static ActionTypeEnum fromValue(String text) {
+      for (ActionTypeEnum b : ActionTypeEnum.values()) {
+        if (String.valueOf(b.value).equals(text)) {
+          return b;
+        }
+      }
+      return null;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    public static class Adapter extends TypeAdapter<ActionTypeEnum> {
+      @Override
+      public void write(final JsonWriter jsonWriter, final ActionTypeEnum enumeration)
+          throws IOException {
+        jsonWriter.value(enumeration.getValue());
+      }
+
+      @Override
+      public ActionTypeEnum read(final JsonReader jsonReader) throws IOException {
+        String value = jsonReader.nextString();
+        return ActionTypeEnum.fromValue(String.valueOf(value));
+      }
+    }
   }
 }

@@ -1,4 +1,28 @@
 /*
+ * Copyright (c) 2020 VMware, Inc
+ *
+ *  SPDX-License-Identifier: MIT
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+/*
  * VMware Service Broker API
  * A multi-cloud API for Cloud Automation Services
  *
@@ -28,112 +52,16 @@ import java.util.UUID;
     value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen",
     date = "2020-09-09T18:27:41.063635-04:00[America/New_York]")
 public class PolicyDecisionPolicy {
-  /** Gets or Sets enforcementType */
-  @JsonAdapter(EnforcementTypeEnum.Adapter.class)
-  public enum EnforcementTypeEnum {
-    SOFT("SOFT"),
-    HARD("HARD");
-
-    private String value;
-
-    EnforcementTypeEnum(String value) {
-      this.value = value;
-    }
-
-    public String getValue() {
-      return value;
-    }
-
-    @Override
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    public static EnforcementTypeEnum fromValue(String text) {
-      for (EnforcementTypeEnum b : EnforcementTypeEnum.values()) {
-        if (String.valueOf(b.value).equals(text)) {
-          return b;
-        }
-      }
-      return null;
-    }
-
-    public static class Adapter extends TypeAdapter<EnforcementTypeEnum> {
-      @Override
-      public void write(final JsonWriter jsonWriter, final EnforcementTypeEnum enumeration)
-          throws IOException {
-        jsonWriter.value(enumeration.getValue());
-      }
-
-      @Override
-      public EnforcementTypeEnum read(final JsonReader jsonReader) throws IOException {
-        String value = jsonReader.nextString();
-        return EnforcementTypeEnum.fromValue(String.valueOf(value));
-      }
-    }
-  }
-
   @SerializedName("enforcementType")
   private EnforcementTypeEnum enforcementType = null;
-
   @SerializedName("id")
   private UUID id = null;
-
   @SerializedName("name")
   private String name = null;
-
   @SerializedName("projectId")
   private String projectId = null;
-
   @SerializedName("rank")
   private Integer rank = null;
-
-  /** Gets or Sets status */
-  @JsonAdapter(StatusEnum.Adapter.class)
-  public enum StatusEnum {
-    NOT_ENFORCED("NOT_ENFORCED"),
-    ENFORCED("ENFORCED"),
-    CONFLICT("CONFLICT");
-
-    private String value;
-
-    StatusEnum(String value) {
-      this.value = value;
-    }
-
-    public String getValue() {
-      return value;
-    }
-
-    @Override
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    public static StatusEnum fromValue(String text) {
-      for (StatusEnum b : StatusEnum.values()) {
-        if (String.valueOf(b.value).equals(text)) {
-          return b;
-        }
-      }
-      return null;
-    }
-
-    public static class Adapter extends TypeAdapter<StatusEnum> {
-      @Override
-      public void write(final JsonWriter jsonWriter, final StatusEnum enumeration)
-          throws IOException {
-        jsonWriter.value(enumeration.getValue());
-      }
-
-      @Override
-      public StatusEnum read(final JsonReader jsonReader) throws IOException {
-        String value = jsonReader.nextString();
-        return StatusEnum.fromValue(String.valueOf(value));
-      }
-    }
-  }
-
   @SerializedName("status")
   private StatusEnum status = null;
 
@@ -296,5 +224,96 @@ public class PolicyDecisionPolicy {
       return "null";
     }
     return o.toString().replace("\n", "\n    ");
+  }
+
+  /** Gets or Sets enforcementType */
+  @JsonAdapter(EnforcementTypeEnum.Adapter.class)
+  public enum EnforcementTypeEnum {
+    SOFT("SOFT"),
+    HARD("HARD");
+
+    private String value;
+
+    EnforcementTypeEnum(String value) {
+      this.value = value;
+    }
+
+    public static EnforcementTypeEnum fromValue(String text) {
+      for (EnforcementTypeEnum b : EnforcementTypeEnum.values()) {
+        if (String.valueOf(b.value).equals(text)) {
+          return b;
+        }
+      }
+      return null;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    public static class Adapter extends TypeAdapter<EnforcementTypeEnum> {
+      @Override
+      public void write(final JsonWriter jsonWriter, final EnforcementTypeEnum enumeration)
+          throws IOException {
+        jsonWriter.value(enumeration.getValue());
+      }
+
+      @Override
+      public EnforcementTypeEnum read(final JsonReader jsonReader) throws IOException {
+        String value = jsonReader.nextString();
+        return EnforcementTypeEnum.fromValue(String.valueOf(value));
+      }
+    }
+  }
+
+  /** Gets or Sets status */
+  @JsonAdapter(StatusEnum.Adapter.class)
+  public enum StatusEnum {
+    NOT_ENFORCED("NOT_ENFORCED"),
+    ENFORCED("ENFORCED"),
+    CONFLICT("CONFLICT");
+
+    private String value;
+
+    StatusEnum(String value) {
+      this.value = value;
+    }
+
+    public static StatusEnum fromValue(String text) {
+      for (StatusEnum b : StatusEnum.values()) {
+        if (String.valueOf(b.value).equals(text)) {
+          return b;
+        }
+      }
+      return null;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    public static class Adapter extends TypeAdapter<StatusEnum> {
+      @Override
+      public void write(final JsonWriter jsonWriter, final StatusEnum enumeration)
+          throws IOException {
+        jsonWriter.value(enumeration.getValue());
+      }
+
+      @Override
+      public StatusEnum read(final JsonReader jsonReader) throws IOException {
+        String value = jsonReader.nextString();
+        return StatusEnum.fromValue(String.valueOf(value));
+      }
+    }
   }
 }
