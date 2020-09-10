@@ -77,7 +77,7 @@ public class GetDeploymentStep extends DeploymentAwareStep implements Serializab
     @Override
     @Nonnull
     public String getDisplayName() {
-      return "vRA: Get Deployment";
+      return "vRA - Get Deployment";
     }
   }
 }

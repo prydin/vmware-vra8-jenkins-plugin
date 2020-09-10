@@ -27,6 +27,7 @@ package com.vmware.vra.jenkinsplugin.vra;
 import static com.vmware.vra.jenkinsplugin.model.deployment.DeploymentRequest.StatusEnum.ABORTED;
 import static com.vmware.vra.jenkinsplugin.model.deployment.DeploymentRequest.StatusEnum.FAILED;
 import static com.vmware.vra.jenkinsplugin.model.deployment.DeploymentRequest.StatusEnum.SUCCESSFUL;
+import static com.vmware.vra.jenkinsplugin.util.MapUtils.mapOf;
 
 import com.vmware.vra.jenkinsplugin.model.catalog.CatalogItem;
 import com.vmware.vra.jenkinsplugin.model.catalog.CatalogItemRequest;
@@ -34,11 +35,12 @@ import com.vmware.vra.jenkinsplugin.model.catalog.CatalogItemRequestResponse;
 import com.vmware.vra.jenkinsplugin.model.catalog.Deployment;
 import com.vmware.vra.jenkinsplugin.model.catalog.PageOfCatalogItem;
 import com.vmware.vra.jenkinsplugin.model.catalog.PageOfDeployment;
+import com.vmware.vra.jenkinsplugin.model.catalog.PageOfResource;
 import com.vmware.vra.jenkinsplugin.model.catalog.Resource;
+import com.vmware.vra.jenkinsplugin.model.catalog.ResourceActionRequest;
 import com.vmware.vra.jenkinsplugin.model.deployment.DeploymentRequest;
 import com.vmware.vra.jenkinsplugin.model.iaas.Project;
 import com.vmware.vra.jenkinsplugin.model.iaas.ProjectResult;
-import com.vmware.vra.jenkinsplugin.util.MapUtils;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
@@ -46,6 +48,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 public class VraApi implements Serializable {
   private static final long serialVersionUID = -3538449737600216823L;
@@ -79,7 +82,7 @@ public class VraApi implements Serializable {
     final PageOfCatalogItem page =
         vraClient.get(
             "/catalog/api/items",
-            MapUtils.mapOf("search", name, "size", "1000000"),
+            mapOf("search", name, "size", "1000000"),
             PageOfCatalogItem.class);
     final List<CatalogItem> content = page.getContent();
     return content.stream().filter((c) -> c.getName().equals(name)).findFirst().orElse(null);
@@ -88,9 +91,7 @@ public class VraApi implements Serializable {
   public Project getProjectByName(final String name) throws VRAException {
     final ProjectResult projs =
         vraClient.get(
-            "/iaas/api/projects",
-            MapUtils.mapOf("$filter", "name eq '" + name + "'"),
-            ProjectResult.class);
+            "/iaas/api/projects", mapOf("$filter", "name eq '" + name + "'"), ProjectResult.class);
     checkResponseSingleton(projs.getContent());
     return projs.getContent().get(0);
   }
@@ -166,7 +167,7 @@ public class VraApi implements Serializable {
       final String deploymentId, final boolean expandResources) throws VRAException {
     return vraClient.get(
         "/deployment/api/deployments/" + deploymentId,
-        MapUtils.mapOf("expandResources", Boolean.toString(expandResources)),
+        mapOf("expandResources", Boolean.toString(expandResources)),
         Deployment.class);
   }
 
@@ -175,8 +176,7 @@ public class VraApi implements Serializable {
     final PageOfDeployment deps =
         vraClient.get(
             "/deployment/api/deployments",
-            MapUtils.mapOf(
-                "expandResources", Boolean.toString(expandResources), "name", deploymentName),
+            mapOf("expandResources", Boolean.toString(expandResources), "name", deploymentName),
             PageOfDeployment.class);
     checkResponseSingleton(deps.getContent());
     return deps.getContent().get(0);
@@ -241,6 +241,41 @@ public class VraApi implements Serializable {
           }
           return Optional.empty();
         });
+  }
+
+  public DeploymentRequest submitDeploymentAction(
+      final String deploymentId,
+      final String actionId,
+      final String reason,
+      final Map<String, String> inputs)
+      throws VRAException {
+    final ResourceActionRequest payload = new ResourceActionRequest();
+    payload.setActionId(actionId);
+    payload.setInputs(inputs);
+    payload.setReason(reason);
+    return vraClient.post(
+        "/deployment/api/deployments/" + deploymentId + "/requests",
+        null,
+        payload,
+        DeploymentRequest.class);
+  }
+
+  public List<Resource> getResourcesForDeployment(final String deploymentId) throws VRAException {
+    final PageOfResource response =
+        vraClient.get(
+            "/deployment/api/deployments/" + deploymentId + "/resources",
+            mapOf("size", "10000"),
+            PageOfResource.class);
+    assert (response != null);
+    assert (response.getContent() != null);
+    return response.getContent();
+  }
+
+  public List<Resource> getNamedResourcesForDeployment(
+      final String deploymentId, final String resourceName) throws VRAException {
+    return getResourcesForDeployment(deploymentId).stream()
+        .filter((r) -> r.getName().equals(resourceName))
+        .collect(Collectors.toList());
   }
 
   // This construct is a bit of a hack to make it easier to inject mocked clients

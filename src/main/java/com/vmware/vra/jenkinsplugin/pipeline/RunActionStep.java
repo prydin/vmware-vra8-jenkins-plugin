@@ -25,25 +25,42 @@
 package com.vmware.vra.jenkinsplugin.pipeline;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.gson.Gson;
+import com.vmware.vra.jenkinsplugin.vra.VRAException;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.model.TaskListener;
-import java.io.Serializable;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
+import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
 import org.jenkinsci.plugins.workflow.steps.StepExecution;
-import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
-public class DeleteDeploymentStep extends DeploymentAwareStep implements Serializable {
-  private static final long serialVersionUID = -213305840840304411L;
+public class RunActionStep extends DeploymentAwareStep {
+  private static final long serialVersionUID = 7632401023113802055L;
+
+  private String inputs;
+
+  private Map<String, String> inputMap;
+
+  private String actionId;
+
+  private String reason;
 
   private long timeout = 300;
 
-  @DataBoundConstructor
-  public DeleteDeploymentStep() {}
+  public String getInputs() {
+    return inputs;
+  }
+
+  @DataBoundSetter
+  public void setInputs(final String inputs) {
+    this.inputs = inputs;
+  }
 
   public long getTimeout() {
     return timeout;
@@ -54,9 +71,47 @@ public class DeleteDeploymentStep extends DeploymentAwareStep implements Seriali
     this.timeout = timeout;
   }
 
+  public Map<String, String> getInputMap() {
+    return inputMap;
+  }
+
+  @DataBoundSetter
+  public void setInputMap(final Map<String, String> inputMap) {
+    this.inputMap = inputMap;
+  }
+
+  public String getActionId() {
+    return actionId;
+  }
+
+  @DataBoundSetter
+  public void setActionId(final String actionId) {
+    this.actionId = actionId;
+  }
+
+  public String getReason() {
+    return reason;
+  }
+
+  public void setReason(final String reason) {
+    this.reason = reason;
+  }
+
   @Override
   public StepExecution start(final StepContext stepContext) throws Exception {
-    return new DeleteDeploymentExecution(stepContext, this);
+    return null;
+  }
+
+  public Map<String, String> resolveInputs() throws VRAException {
+    if (getInputMap() != null && getInputs() != null) {
+      throw new VRAException("Parameters 'input' and 'inputMap' are mutually exclusive");
+    }
+    if (getInputMap() != null) {
+      return getInputMap();
+    } else if (StringUtils.isNotBlank(getInputs())) {
+      return new Gson().fromJson(getInputs(), Map.class);
+    }
+    return Collections.EMPTY_MAP;
   }
 
   @Extension
@@ -71,13 +126,13 @@ public class DeleteDeploymentStep extends DeploymentAwareStep implements Seriali
 
     @Override
     public String getFunctionName() {
-      return "vraDeleteDeployment";
+      return "vraRunAction";
     }
 
     @Override
     @Nonnull
     public String getDisplayName() {
-      return "vRA - Delete Deployment";
+      return "vRA - Run Action";
     }
   }
 }

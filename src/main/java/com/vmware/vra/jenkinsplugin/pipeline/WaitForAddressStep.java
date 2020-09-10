@@ -37,29 +37,15 @@ import org.jenkinsci.plugins.workflow.steps.StepExecution;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
-public class WaitForAddressStep extends AbstractStep implements Serializable {
+public class WaitForAddressStep extends DeploymentAwareStep implements Serializable {
   private static final long serialVersionUID = -213305840840304411L;
-
-  private String deploymentId;
 
   private String resourceName;
 
   private long timeout = 300;
 
   @DataBoundConstructor
-  public WaitForAddressStep(final String deploymentId, final String resourceName) {
-    this.resourceName = resourceName;
-    this.deploymentId = deploymentId;
-  }
-
-  public String getDeploymentId() {
-    return deploymentId;
-  }
-
-  @DataBoundSetter
-  public void setDeploymentId(final String deploymentId) {
-    this.deploymentId = deploymentId;
-  }
+  public WaitForAddressStep() {}
 
   public String getResourceName() {
     return resourceName;
@@ -102,7 +88,7 @@ public class WaitForAddressStep extends AbstractStep implements Serializable {
     @Override
     @Nonnull
     public String getDisplayName() {
-      return "vRA: Wait for Address";
+      return "vRA - Wait for Address";
     }
   }
 }

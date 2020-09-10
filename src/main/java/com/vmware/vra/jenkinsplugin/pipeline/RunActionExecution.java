@@ -24,24 +24,29 @@
 
 package com.vmware.vra.jenkinsplugin.pipeline;
 
+import com.vmware.vra.jenkinsplugin.model.deployment.DeploymentRequest;
+import com.vmware.vra.jenkinsplugin.util.MapUtils;
 import com.vmware.vra.jenkinsplugin.vra.VraApi;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.jenkinsci.plugins.workflow.steps.SynchronousNonBlockingStepExecution;
 
-public class WaitForAddressExecution extends SynchronousNonBlockingStepExecution<String> {
+public class RunActionExecution extends SynchronousNonBlockingStepExecution<Object> {
   private static final long serialVersionUID = -5637803299301492970L;
 
-  private final WaitForAddressStep step;
+  private final RunActionStep step;
 
-  public WaitForAddressExecution(final StepContext context, final WaitForAddressStep step) {
+  public RunActionExecution(final StepContext context, final RunActionStep step) {
     super(context);
     this.step = step;
   }
 
   @Override
-  protected String run() throws Exception {
+  protected Object run() throws Exception {
     final VraApi client = step.getClient();
-    return client.waitForIPAddress(
-        step.getDeploymentId(), step.resolveDeploymentId(), step.getTimeout() * 1000);
+    final DeploymentRequest rar =
+        client.submitDeploymentAction(
+            step.resolveDeploymentId(), step.getActionId(), step.getReason(), step.resolveInputs());
+    return MapUtils.mappify(
+        client.waitForRequestCompletion(rar.getId().toString(), step.getTimeout()));
   }
 }

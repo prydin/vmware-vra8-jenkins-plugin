@@ -55,7 +55,7 @@ public abstract class DeploymentAwareStep extends AbstractStep {
     this.deploymentName = deploymentName;
   }
 
-  protected String resolveDeploymentId() throws VRAException {
+  public String resolveDeploymentId() throws VRAException {
     final String depId = getDeploymentId();
     final String depName = getDeploymentName();
     if (isNotBlank(depId)) {

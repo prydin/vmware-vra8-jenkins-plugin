@@ -168,7 +168,7 @@ public class DeployFromCatalogStep extends AbstractStep implements Serializable 
     @Override
     @Nonnull
     public String getDisplayName() {
-      return "vRA: Deploy from catalog";
+      return "vRA - Deploy from catalog";
     }
 
     public ListBoxModel doFillConfigFormatItems() {
