@@ -16,13 +16,12 @@ import com.vmware.vra.jenkinsplugin.model.catalog.CatalogItemRequest;
 import com.vmware.vra.jenkinsplugin.model.catalog.CatalogItemRequestResponse;
 import com.vmware.vra.jenkinsplugin.model.catalog.Deployment;
 import com.vmware.vra.jenkinsplugin.model.catalog.PageOfCatalogItem;
+import com.vmware.vra.jenkinsplugin.model.deployment.DeploymentRequest;
+import com.vmware.vra.jenkinsplugin.model.iaas.Project;
 import com.vmware.vra.jenkinsplugin.model.iaas.ProjectResult;
 import com.vmware.vra.jenkinsplugin.testutils.FileUtils;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
-import com.vmware.vra.jenkinsplugin.model.blueprint.Blueprint;
-import com.vmware.vra.jenkinsplugin.model.blueprint.PageOfBlueprint;
-import com.vmware.vra.jenkinsplugin.model.iaas.Project;
 import org.junit.Test;
 
 public class VraApiTest {
@@ -49,63 +48,6 @@ public class VraApiTest {
     }
     final VraApi client = new VraApi(url, System.getenv("VRA_TOKEN"));
     assertNotNull(client);
-  }
-
-  @Test
-  public void testGetBlueprintByName() throws VRAException {
-    final String url = System.getenv("VRA_URL");
-    if (url == null) {
-      System.err.println("VRA_URL not set. Skipping test");
-      return;
-    }
-    final VraApi client = new VraApi(url, System.getenv("VRA_TOKEN"));
-    final Blueprint bp = client.getBlueprintByName(blueprintName);
-    assertNotNull(bp);
-    assertEquals(blueprintName, bp.getName());
-  }
-
-  @Test
-  public void testGetBlueprintByNameMock() throws Exception {
-    final Gson gson = new Gson();
-    final PageOfBlueprint wanted =
-        gson.fromJson(
-            FileUtils.loadResource("/apiresults/PageOfBlueprint.json"), PageOfBlueprint.class);
-    final VraClient mocked = mock(VraClient.class);
-    when(mocked.get(eq("/blueprint/api/blueprints"), any(), eq(PageOfBlueprint.class)))
-        .thenReturn(wanted);
-    final VraApi client = new VraApi(mocked);
-    final Blueprint bp = client.getBlueprintByName(blueprintName);
-    verify(mocked, times(1)).get(eq("/blueprint/api/blueprints"), any(), eq(PageOfBlueprint.class));
-  }
-
-  @Test
-  public void testGetBlueprintById() throws VRAException {
-    final String url = System.getenv("VRA_URL");
-    if (url == null) {
-      System.err.println("VRA_URL not set. Skipping test");
-      return;
-    }
-    final VraApi client = new VraApi(url, System.getenv("VRA_TOKEN"));
-    Blueprint bp = client.getBlueprintByName(blueprintName);
-    assertNotNull(bp);
-    assertEquals(blueprintName, bp.getName());
-    bp = client.getBlueprintById(bp.getId());
-    assertNotNull(bp);
-    assertEquals(blueprintName, bp.getName());
-  }
-
-  @Test
-  public void testGetBlueprintByIdMock() throws Exception {
-    final Gson gson = new Gson();
-    final Blueprint wanted =
-        gson.fromJson(FileUtils.loadResource("/apiresults/Blueprint.json"), Blueprint.class);
-    final VraClient mocked = mock(VraClient.class);
-    when(mocked.get(eq("/blueprint/api/blueprints/" + blueprintId), any(), eq(Blueprint.class)))
-        .thenReturn(wanted);
-    final VraApi client = new VraApi(mocked);
-    final Blueprint bp = client.getBlueprintById(blueprintId);
-    verify(mocked, times(1))
-        .get(eq("/blueprint/api/blueprints/" + blueprintId), any(), eq(Blueprint.class));
   }
 
   @Test
@@ -245,18 +187,19 @@ public class VraApiTest {
     assertNotNull(resp[0].getDeploymentId());
     assertEquals(depName, resp[0].getDeploymentName());
 
-    Deployment dep = client.waitForCatalogDeployment(resp[0].getDeploymentId(), 300000);
+    final Deployment dep = client.waitForCatalogDeployment(resp[0].getDeploymentId(), 300000);
     assertNotNull(dep);
     assertNotNull(dep.getId());
     assertEquals(resp[0].getDeploymentId(), dep.getId().toString());
 
-    dep = client.deleteCatalogDeployment(dep.getId().toString());
-    assertNotNull(dep);
-    assertNotNull(dep.getId());
+    final DeploymentRequest dr = client.deleteCatalogDeployment(dep.getId().toString());
+    assertNotNull(dr);
+    assertNotNull(dr.getId());
 
-    dep = client.waitForCatalogDeployment(resp[0].getDeploymentId(), 300000);
-    assertNotNull(dep);
-    assertNotNull(dep.getId());
+    final DeploymentRequest deploymentRequest =
+        client.waitForRequestCompletion(dr.getId().toString(), 300000);
+    assertNotNull(deploymentRequest);
+    assertNotNull(deploymentRequest.getId());
 
     final String ip = client.waitForIPAddress(resp[0].getDeploymentId(), "UbuntuMachine", 300000);
     assertNotNull(ip);

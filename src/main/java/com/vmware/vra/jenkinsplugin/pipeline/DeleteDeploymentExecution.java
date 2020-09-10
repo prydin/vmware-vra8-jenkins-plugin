@@ -1,6 +1,6 @@
 package com.vmware.vra.jenkinsplugin.pipeline;
 
-import com.vmware.vra.jenkinsplugin.model.catalog.Deployment;
+import com.vmware.vra.jenkinsplugin.model.deployment.DeploymentRequest;
 import com.vmware.vra.jenkinsplugin.util.MapUtils;
 import com.vmware.vra.jenkinsplugin.vra.VraApi;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
@@ -21,7 +21,7 @@ public class DeleteDeploymentExecution extends SynchronousNonBlockingStepExecuti
     final VraApi client = step.getClient();
     step.validate();
     final String depId = step.resolveDeploymentId();
-    final Deployment dep = client.deleteCatalogDeployment(depId);
+    final DeploymentRequest dep = client.deleteCatalogDeployment(depId);
     return MapUtils.mappify(
         client.waitForRequestCompletion(dep.getId().toString(), step.getTimeout()));
   }

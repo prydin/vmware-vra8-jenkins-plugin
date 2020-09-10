@@ -65,14 +65,12 @@ public class E2EPipelineTest {
   @WithTimeout(600)
   @Test
   public void testDeployFromCatalogPipelineWithJsonConfig() {
-    testPipeline(
-            "/com/vmware/vra/jenkinsplugin/pipelines/DeployFromCatalogWithConfigJson.groovy");
+    testPipeline("/com/vmware/vra/jenkinsplugin/pipelines/DeployFromCatalogWithConfigJson.groovy");
   }
 
   @WithTimeout(600)
   @Test
   public void testDeployFromCatalogPipelineWithYamlConfig() {
-    testPipeline(
-            "/com/vmware/vra/jenkinsplugin/pipelines/DeployFromCatalogWithConfigYaml.groovy");
+    testPipeline("/com/vmware/vra/jenkinsplugin/pipelines/DeployFromCatalogWithConfigYaml.groovy");
   }
 }
