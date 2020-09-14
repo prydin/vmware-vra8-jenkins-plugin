@@ -41,7 +41,7 @@ node {
     def addr = vraWaitForAddress(
             deploymentId: dep[0].id,
             resourceName: 'UbuntuMachine')
-    echo "Deployed: $dep[0].id, address: $addr"
+    echo "Deployed: $dep[0].id, addresses: $addr"
     def dep2 = vraDeleteDeployment(deploymentName: dep[0].name)
     assert dep2 != null
     assert dep2.id != null

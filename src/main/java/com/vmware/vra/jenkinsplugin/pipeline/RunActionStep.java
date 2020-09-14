@@ -38,6 +38,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
 import org.jenkinsci.plugins.workflow.steps.StepExecution;
+import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
 public class RunActionStep extends DeploymentAwareStep {
@@ -47,11 +48,16 @@ public class RunActionStep extends DeploymentAwareStep {
 
   private Map<String, String> inputMap;
 
+  private String resourceName;
+
   private String actionId;
 
   private String reason;
 
   private long timeout = 300;
+
+  @DataBoundConstructor
+  public RunActionStep() {}
 
   public String getInputs() {
     return inputs;
@@ -93,8 +99,18 @@ public class RunActionStep extends DeploymentAwareStep {
     return reason;
   }
 
+  @DataBoundSetter
   public void setReason(final String reason) {
     this.reason = reason;
+  }
+
+  public String getResourceName() {
+    return resourceName;
+  }
+
+  @DataBoundSetter
+  public void setResourceName(final String resourceName) {
+    this.resourceName = resourceName;
   }
 
   @Override

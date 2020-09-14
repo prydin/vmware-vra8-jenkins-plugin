@@ -25,10 +25,11 @@
 package com.vmware.vra.jenkinsplugin.pipeline;
 
 import com.vmware.vra.jenkinsplugin.vra.VraApi;
+import java.util.List;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.jenkinsci.plugins.workflow.steps.SynchronousNonBlockingStepExecution;
 
-public class WaitForAddressExecution extends SynchronousNonBlockingStepExecution<String> {
+public class WaitForAddressExecution extends SynchronousNonBlockingStepExecution<List<String>> {
   private static final long serialVersionUID = -5637803299301492970L;
 
   private final WaitForAddressStep step;
@@ -39,9 +40,9 @@ public class WaitForAddressExecution extends SynchronousNonBlockingStepExecution
   }
 
   @Override
-  protected String run() throws Exception {
+  protected List<String> run() throws Exception {
     final VraApi client = step.getClient();
-    return client.waitForIPAddress(
-        step.getDeploymentId(), step.resolveDeploymentId(), step.getTimeout() * 1000);
+    return client.waitForIPAddresses(
+        step.getDeploymentId(), step.getResourceName(), step.getTimeout() * 1000);
   }
 }

@@ -42,6 +42,7 @@ import com.vmware.vra.jenkinsplugin.model.deployment.DeploymentRequest;
 import com.vmware.vra.jenkinsplugin.model.iaas.Project;
 import com.vmware.vra.jenkinsplugin.model.iaas.ProjectResult;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +79,14 @@ public class VraApi implements Serializable {
     }
   }
 
+  private static Object getProperty(final Object props, final String key) {
+    if (!(props instanceof Map)) {
+      throw new IllegalArgumentException(
+          "Expected properties to be a Map but got" + props.getClass().getName());
+    }
+    return ((Map<String, Object>) props).get("address");
+  }
+
   public CatalogItem getCatalogItemByName(final String name) throws VRAException {
     final PageOfCatalogItem page =
         vraClient.get(
@@ -104,7 +113,7 @@ public class VraApi implements Serializable {
     return vraClient.get("/catalog/api/items/" + id, null, CatalogItem.class);
   }
 
-  public String waitForIPAddress(
+  public List<String> waitForIPAddresses(
       final String deploymentId, final String resourceName, final long timeout)
       throws VRAException, InterruptedException, TimeoutException {
     return pollWithTimeout(
@@ -114,26 +123,26 @@ public class VraApi implements Serializable {
           if (dep == null) {
             throw new IllegalArgumentException("Deployment doesn't exist: " + deploymentId);
           }
-          final Optional<Resource> resource =
-              dep.getResources().stream()
-                  .filter((r) -> r.getName().equals(resourceName))
-                  .findFirst();
-          if (!resource.isPresent()) {
-            throw new VRAException("Resource " + resourceName + " does not exist in deployment");
-          }
-          final Resource r = resource.get();
-          final Object props = r.getProperties();
-          if (props != null) {
-            if (!(props instanceof Map)) {
-              throw new VRAException(
-                  "Expected properties to be a Map but got" + props.getClass().getName());
+          final List<Resource> resources = dep.getResources();
+          final List<String> result = new ArrayList<>(dep.getResources().size());
+          boolean missingAddress = false;
+          boolean missingResource = true;
+          for (final Resource r : dep.getResources()) {
+            if (!r.getName().equals(resourceName)) {
+              continue;
             }
-            final String ip = ((Map<String, String>) props).get("address");
-            if (ip != null) {
-              return Optional.of(ip);
+            missingResource = false;
+            final String addr = getProperty(r.getProperties(), "address").toString();
+            if (addr != null) {
+              result.add(addr);
+            } else {
+              missingAddress = true;
             }
           }
-          return Optional.empty();
+          if (missingResource) {
+            throw new IllegalArgumentException("Resource " + resourceName + " doesn't exist");
+          }
+          return missingAddress ? Optional.empty() : Optional.of(result);
         });
   }
 
@@ -243,6 +252,21 @@ public class VraApi implements Serializable {
         });
   }
 
+  public List<DeploymentRequest> waitForRequestCompletion(
+      final List<String> ids, final long timeout)
+      throws VRAException, TimeoutException, InterruptedException {
+    final List<DeploymentRequest> result = new ArrayList<>(ids.size());
+    final long start = System.currentTimeMillis();
+    for (final String id : ids) {
+      final long remaining = timeout - (System.currentTimeMillis() - start);
+      if (remaining <= 0) {
+        throw new TimeoutException("Timeout while waiting for multiple deployments to finish");
+      }
+      result.add(waitForRequestCompletion(id, Math.min(remaining, timeout)));
+    }
+    return result;
+  }
+
   public DeploymentRequest submitDeploymentAction(
       final String deploymentId,
       final String actionId,
@@ -255,6 +279,24 @@ public class VraApi implements Serializable {
     payload.setReason(reason);
     return vraClient.post(
         "/deployment/api/deployments/" + deploymentId + "/requests",
+        null,
+        payload,
+        DeploymentRequest.class);
+  }
+
+  public DeploymentRequest submitResourceAction(
+      final String deploymentId,
+      final String resourceId,
+      final String actionId,
+      final String reason,
+      final Map<String, String> inputs)
+      throws VRAException {
+    final ResourceActionRequest payload = new ResourceActionRequest();
+    payload.setActionId(actionId);
+    payload.setInputs(inputs);
+    payload.setReason(reason);
+    return vraClient.post(
+        "/deployment/api/deployments/" + deploymentId + "/resources/" + resourceId + "/requests",
         null,
         payload,
         DeploymentRequest.class);

@@ -40,24 +40,29 @@ import com.vmware.vra.jenkinsplugin.model.catalog.CatalogItemRequest;
 import com.vmware.vra.jenkinsplugin.model.catalog.CatalogItemRequestResponse;
 import com.vmware.vra.jenkinsplugin.model.catalog.Deployment;
 import com.vmware.vra.jenkinsplugin.model.catalog.PageOfCatalogItem;
+import com.vmware.vra.jenkinsplugin.model.catalog.ResourceActionRequest;
 import com.vmware.vra.jenkinsplugin.model.deployment.DeploymentRequest;
 import com.vmware.vra.jenkinsplugin.model.iaas.Project;
 import com.vmware.vra.jenkinsplugin.model.iaas.ProjectResult;
 import com.vmware.vra.jenkinsplugin.testutils.FileUtils;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
+import java.util.regex.Pattern;
 import org.junit.Test;
 
 public class VraApiTest {
   private static final String catalogItemName = "plain-ubuntu-18";
-
   private static final String projectName = "Pontus Project";
-
   private static final String catalogItemId = "563f6b86-e379-3965-81eb-90471da4d688";
-
   private static final String projectId = "9de81991-4063-43b8-9542-dbaff1e588f8";
-
+  private static final String deploymentId = "17a6f622-2022-4482-bfb7-6fa889dabaa5";
   private static final String version = "6";
+  private static final String resourceName = "UbuntuMachine";
+  private static final Pattern ipPattern =
+      Pattern.compile(
+          "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
 
   @Test
   public void testLogin() throws VRAException {
@@ -191,6 +196,23 @@ public class VraApiTest {
   }
 
   @Test
+  public void waitForAddreesMocked() throws Exception {
+    final Gson gson = new Gson();
+    final Deployment deployment =
+        gson.fromJson(FileUtils.loadResource("/apiresults/Deployment.json"), Deployment.class);
+    final VraClient mocked = mock(VraClient.class);
+    when(mocked.get(eq("/deployment/api/deployments/" + deploymentId), any(), eq(Deployment.class)))
+        .thenReturn(deployment);
+    final VraApi client = new VraApi(mocked);
+    final List<String> addresses = client.waitForIPAddresses(deploymentId, resourceName, 300);
+    assertNotNull(addresses);
+    assertTrue(ipPattern.matcher(addresses.get(0)).matches());
+    assertEquals(1, addresses.size());
+    verify(mocked, times(1))
+        .get(eq("/deployment/api/deployments/" + deploymentId), any(), eq(Deployment.class));
+  }
+
+  @Test
   public void testDeployment() throws VRAException, TimeoutException, InterruptedException {
     final String url = System.getenv("VRA_URL");
     if (url == null) {
@@ -212,11 +234,11 @@ public class VraApiTest {
     assertNotNull(dep.getId());
     assertEquals(resp[0].getDeploymentId(), dep.getId().toString());
 
-    final String ip = client.waitForIPAddress(resp[0].getDeploymentId(), "UbuntuMachine", 300000);
+    final List<String> ip =
+        client.waitForIPAddresses(resp[0].getDeploymentId(), "UbuntuMachine", 300000);
     assertNotNull(ip);
-    assertTrue(
-        ip.matches(
-            "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"));
+    assertEquals(1, ip.size());
+    assertTrue(ipPattern.matcher(ip.get(0)).matches());
 
     final DeploymentRequest dr = client.deleteCatalogDeployment(dep.getId().toString());
     assertNotNull(dr);
@@ -271,5 +293,88 @@ public class VraApiTest {
     assertNotNull(resp[0]);
     assertNotNull(resp[0].getDeploymentId());
     assertEquals(depName, resp[0].getDeploymentName());
+  }
+
+  @Test
+  public void testDeploymentActionMocked() throws Exception {
+    // Load templates
+    final Gson gson = new Gson();
+    final ResourceActionRequest action =
+        gson.fromJson(
+            FileUtils.loadResource("/apiresults/ResourceActionRequest.json"),
+            ResourceActionRequest.class);
+    final DeploymentRequest wantedRequest =
+        gson.fromJson(
+            FileUtils.loadResource("/apiresults/DeploymentRequestPending.json"),
+            DeploymentRequest.class);
+
+    // Set up mocking
+    final VraClient mocked = mock(VraClient.class);
+    final VraApi client = new VraApi(mocked);
+    when(mocked.post(
+            eq("/deployment/api/deployments/" + deploymentId + "/requests"),
+            any(),
+            eq(action),
+            eq(DeploymentRequest.class)))
+        .thenReturn(wantedRequest);
+    final DeploymentRequest dr =
+        client.submitDeploymentAction(
+            deploymentId,
+            action.getActionId(),
+            action.getReason(),
+            (Map<String, String>) action.getInputs());
+    verify(mocked, times(1))
+        .post(
+            eq("/deployment/api/deployments/" + deploymentId + "/requests"),
+            any(),
+            eq(action),
+            eq(DeploymentRequest.class));
+    assertEquals(wantedRequest.getActionId(), dr.getActionId());
+    assertEquals(wantedRequest.getInputs(), dr.getInputs());
+    assertEquals(wantedRequest.getStatus(), dr.getStatus());
+  }
+
+  @Test
+  public void testWaitForRequestCompletionHappyPath() throws Exception {
+    // Load templates
+    final Gson gson = new Gson();
+    final DeploymentRequest pendingRequest =
+        gson.fromJson(
+            FileUtils.loadResource("/apiresults/DeploymentRequestPending.json"),
+            DeploymentRequest.class);
+    // Load templates
+    final DeploymentRequest readyRequest =
+        gson.fromJson(
+            FileUtils.loadResource("/apiresults/DeploymentRequestSuccess.json"),
+            DeploymentRequest.class);
+
+    // Set up mocking
+    final VraClient mocked = mock(VraClient.class);
+    final VraApi client = new VraApi(mocked);
+    final Delay<DeploymentRequest> provider = new Delay<>(30000, pendingRequest, readyRequest);
+    when(mocked.get(
+            eq("/deployment/api/requests/" + deploymentId), any(), eq(DeploymentRequest.class)))
+        .thenReturn(provider.poll());
+    final DeploymentRequest dr = client.waitForRequestCompletion(deploymentId, 300000);
+    assertEquals("SUCCESSFUL", dr.getStatus());
+    verify(mocked, times(1))
+        .get(eq("/deployment/api/requests/" + deploymentId), any(), eq(DeploymentRequest.class));
+  }
+
+  private static class Delay<T> {
+    private final long delay;
+    private final long start = System.currentTimeMillis();
+    private final T pending;
+    private final T ready;
+
+    public Delay(final long delay, final T pending, final T ready) {
+      this.delay = delay;
+      this.pending = pending;
+      this.ready = ready;
+    }
+
+    public T poll() throws Exception {
+      return System.currentTimeMillis() - start > delay ? ready : pending;
+    }
   }
 }

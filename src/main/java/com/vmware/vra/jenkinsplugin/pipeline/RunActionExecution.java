@@ -24,9 +24,19 @@
 
 package com.vmware.vra.jenkinsplugin.pipeline;
 
+import static com.vmware.vra.jenkinsplugin.util.MapUtils.mappify;
+
+import com.vmware.vra.jenkinsplugin.model.catalog.Deployment;
+import com.vmware.vra.jenkinsplugin.model.catalog.Resource;
+import com.vmware.vra.jenkinsplugin.model.catalog.ResourceActionRequest;
 import com.vmware.vra.jenkinsplugin.model.deployment.DeploymentRequest;
 import com.vmware.vra.jenkinsplugin.util.MapUtils;
 import com.vmware.vra.jenkinsplugin.vra.VraApi;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.jenkinsci.plugins.workflow.steps.SynchronousNonBlockingStepExecution;
 
@@ -43,10 +53,41 @@ public class RunActionExecution extends SynchronousNonBlockingStepExecution<Obje
   @Override
   protected Object run() throws Exception {
     final VraApi client = step.getClient();
-    final DeploymentRequest rar =
-        client.submitDeploymentAction(
-            step.resolveDeploymentId(), step.getActionId(), step.getReason(), step.resolveInputs());
+    final String resourceName = step.getResourceName();
+    if (StringUtils.isBlank(resourceName)) {
+      final DeploymentRequest dr =
+          client.submitDeploymentAction(
+              step.resolveDeploymentId(),
+              step.getActionId(),
+              step.getReason(),
+              step.resolveInputs());
+      return mappify(
+          Collections.singleton(
+              client.waitForRequestCompletion(dr.getId().toString(), step.getTimeout())));
+    }
+
+    // Resource name was specified. Run action against all matching resources.
+    final Deployment dep = client.getCatalogDeploymentById(step.resolveDeploymentId(), true);
+    if (dep == null) {
+      throw new IllegalArgumentException("Deployment does not exist: " + step.getDeploymentId());
+    }
+    final List<DeploymentRequest> drs = new ArrayList<>();
+    for (final Resource r : dep.getResources()) {
+      if (!r.getName().equals(resourceName)) {
+        continue;
+      }
+      drs.add(
+          client.submitResourceAction(
+              step.resolveDeploymentId(),
+              r.getId().toString(),
+              step.getActionId(),
+              step.getReason(),
+              step.resolveInputs()));
+    }
+    final List<ResourceActionRequest> result = new ArrayList<>(drs.size());
     return MapUtils.mappify(
-        client.waitForRequestCompletion(rar.getId().toString(), step.getTimeout()));
+        client.waitForRequestCompletion(
+            drs.stream().map(dr -> dr.getId().toString()).collect(Collectors.toList()),
+            step.getTimeout()));
   }
 }
