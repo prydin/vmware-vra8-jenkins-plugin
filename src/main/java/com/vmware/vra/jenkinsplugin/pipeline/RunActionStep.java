@@ -115,7 +115,7 @@ public class RunActionStep extends DeploymentAwareStep {
 
   @Override
   public StepExecution start(final StepContext stepContext) throws Exception {
-    return null;
+    return new RunActionExecution(stepContext, this);
   }
 
   public Map<String, String> resolveInputs() throws VRAException {

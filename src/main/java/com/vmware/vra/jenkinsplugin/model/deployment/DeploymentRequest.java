@@ -109,10 +109,13 @@ public class DeploymentRequest {
 
   @SerializedName("resourceType")
   private String resourceType = null;
+
   @SerializedName("status")
   private StatusEnum status = null;
+
   @SerializedName("totalTasks")
   private Integer totalTasks = null;
+
   @SerializedName("updatedAt")
   private Date updatedAt = null;
 

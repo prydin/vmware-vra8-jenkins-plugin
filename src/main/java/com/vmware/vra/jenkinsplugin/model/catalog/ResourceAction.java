@@ -54,24 +54,34 @@ import java.util.Objects;
 public class ResourceAction {
   @SerializedName("actionType")
   private ActionTypeEnum actionType = null;
+
   @SerializedName("dependents")
   private List<String> dependents = null;
+
   @SerializedName("description")
   private String description = null;
+
   @SerializedName("displayName")
   private String displayName = null;
+
   @SerializedName("formDefinition")
   private FormDefinition formDefinition = null;
+
   @SerializedName("id")
   private String id = null;
+
   @SerializedName("name")
   private String name = null;
+
   @SerializedName("orgId")
   private String orgId = null;
+
   @SerializedName("projectId")
   private String projectId = null;
+
   @SerializedName("schema")
   private Object schema = null;
+
   @SerializedName("valid")
   private Boolean valid = null;
 

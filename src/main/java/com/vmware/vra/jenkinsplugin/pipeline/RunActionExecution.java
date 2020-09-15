@@ -35,6 +35,7 @@ import com.vmware.vra.jenkinsplugin.vra.VraApi;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
@@ -63,7 +64,7 @@ public class RunActionExecution extends SynchronousNonBlockingStepExecution<Obje
               step.resolveInputs());
       return mappify(
           Collections.singleton(
-              client.waitForRequestCompletion(dr.getId().toString(), step.getTimeout())));
+              client.waitForRequestCompletion(dr.getId().toString(), step.getTimeout() * 1000)));
     }
 
     // Resource name was specified. Run action against all matching resources.
@@ -71,9 +72,10 @@ public class RunActionExecution extends SynchronousNonBlockingStepExecution<Obje
     if (dep == null) {
       throw new IllegalArgumentException("Deployment does not exist: " + step.getDeploymentId());
     }
+    final Pattern resourcePattern = VraApi.getResourcePattern(resourceName);
     final List<DeploymentRequest> drs = new ArrayList<>();
     for (final Resource r : dep.getResources()) {
-      if (!r.getName().equals(resourceName)) {
+      if (!resourcePattern.matcher(r.getName()).matches()) {
         continue;
       }
       drs.add(
@@ -84,10 +86,14 @@ public class RunActionExecution extends SynchronousNonBlockingStepExecution<Obje
               step.getReason(),
               step.resolveInputs()));
     }
+    if (drs.size() == 0) {
+      throw new IllegalArgumentException(
+          "Resource " + resourceName + " was not part of the deployment");
+    }
     final List<ResourceActionRequest> result = new ArrayList<>(drs.size());
     return MapUtils.mappify(
         client.waitForRequestCompletion(
             drs.stream().map(dr -> dr.getId().toString()).collect(Collectors.toList()),
-            step.getTimeout()));
+            step.getTimeout() * 1000));
   }
 }

@@ -56,34 +56,49 @@ import java.util.UUID;
 public class MeteringPolicy {
   @SerializedName("chargeModel")
   private ChargeModelEnum chargeModel = null;
+
   @SerializedName("createdAt")
   private Date createdAt = null;
+
   @SerializedName("createdBy")
   private String createdBy = null;
+
   @SerializedName("description")
   private String description = null;
+
   @SerializedName("fixedPrice")
   private FixedPrice fixedPrice = null;
+
   @SerializedName("id")
   private UUID id = null;
+
   @SerializedName("lastUpdatedAt")
   private Date lastUpdatedAt = null;
+
   @SerializedName("meteringItems")
   private List<MeteringItem> meteringItems = null;
+
   @SerializedName("name")
   private String name = null;
+
   @SerializedName("namedMeteringItems")
   private List<NamedMeteringItem> namedMeteringItems = null;
+
   @SerializedName("oneTimeMeteringItems")
   private List<OneTimeMeteringItem> oneTimeMeteringItems = null;
+
   @SerializedName("orgId")
   private String orgId = null;
+
   @SerializedName("pricingCardAssignmentInfo")
   private MeteringPolicyAssignmentInfo pricingCardAssignmentInfo = null;
+
   @SerializedName("tagBasedMeteringItems")
   private List<TagBasedMeteringItem> tagBasedMeteringItems = null;
+
   @SerializedName("tagBasedOneTimeMeteringItems")
   private List<TagBasedOneTimeMeteringItem> tagBasedOneTimeMeteringItems = null;
+
   @SerializedName("tagBasedRateFactorItems")
   private List<TagBasedRateFactorItem> tagBasedRateFactorItems = null;
 

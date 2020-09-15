@@ -29,6 +29,9 @@ import static com.vmware.vra.jenkinsplugin.model.deployment.DeploymentRequest.St
 import static com.vmware.vra.jenkinsplugin.model.deployment.DeploymentRequest.StatusEnum.SUCCESSFUL;
 import static com.vmware.vra.jenkinsplugin.util.MapUtils.mapOf;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.vmware.vra.jenkinsplugin.model.catalog.CatalogItem;
 import com.vmware.vra.jenkinsplugin.model.catalog.CatalogItemRequest;
 import com.vmware.vra.jenkinsplugin.model.catalog.CatalogItemRequestResponse;
@@ -48,12 +51,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class VraApi implements Serializable {
   private static final long serialVersionUID = -3538449737600216823L;
   private static final long deploymentPollInterval = 30000;
+  private static final LoadingCache<String, Pattern> patterns =
+      CacheBuilder.newBuilder()
+          .maximumSize(1000)
+          .expireAfterWrite(10, TimeUnit.MINUTES)
+          .build(
+              new CacheLoader<String, Pattern>() {
+                @Override
+                public Pattern load(final String pattern) {
+                  return Pattern.compile(pattern);
+                }
+              });
   private static VraClientFactory clientFactory =
       new DefaultFactory(); // Hack to make testing easier. See below!
   private final VraClient vraClient;
@@ -64,6 +80,15 @@ public class VraApi implements Serializable {
 
   public VraApi(final VraClient vraClient) {
     this.vraClient = vraClient;
+  }
+
+  public static Pattern getResourcePattern(final String resourceName) {
+    try {
+      return patterns.get(resourceName + "(\\[[0-9]+\\])?");
+    } catch (final Exception e) {
+      throw new IllegalArgumentException(
+          "Something went wrong while parsing regexp for resource " + resourceName, e);
+    }
   }
 
   public static void setClientFactory(final VraClientFactory clientFactory) {
@@ -116,6 +141,7 @@ public class VraApi implements Serializable {
   public List<String> waitForIPAddresses(
       final String deploymentId, final String resourceName, final long timeout)
       throws VRAException, InterruptedException, TimeoutException {
+    final Pattern resourcePattern = getResourcePattern(resourceName);
     return pollWithTimeout(
         timeout,
         () -> {
@@ -128,7 +154,7 @@ public class VraApi implements Serializable {
           boolean missingAddress = false;
           boolean missingResource = true;
           for (final Resource r : dep.getResources()) {
-            if (!r.getName().equals(resourceName)) {
+            if (!resourcePattern.matcher(r.getName()).matches()) {
               continue;
             }
             missingResource = false;
@@ -156,6 +182,9 @@ public class VraApi implements Serializable {
       final int count)
       throws VRAException {
     final CatalogItem ci = getCatalogItemByName(ciName);
+    if (ci == null) {
+      throw new IllegalArgumentException("Catalog item named " + ciName + " not found");
+    }
     final Project proj = getProjectByName(project);
 
     final CatalogItemRequest cir = new CatalogItemRequest();
@@ -275,7 +304,7 @@ public class VraApi implements Serializable {
       throws VRAException {
     final ResourceActionRequest payload = new ResourceActionRequest();
     payload.setActionId(actionId);
-    payload.setInputs(inputs);
+    payload.setInputs(inputs != null ? inputs : Collections.EMPTY_MAP);
     payload.setReason(reason);
     return vraClient.post(
         "/deployment/api/deployments/" + deploymentId + "/requests",
@@ -293,7 +322,7 @@ public class VraApi implements Serializable {
       throws VRAException {
     final ResourceActionRequest payload = new ResourceActionRequest();
     payload.setActionId(actionId);
-    payload.setInputs(inputs);
+    payload.setInputs(inputs != null ? inputs : Collections.EMPTY_MAP);
     payload.setReason(reason);
     return vraClient.post(
         "/deployment/api/deployments/" + deploymentId + "/resources/" + resourceId + "/requests",

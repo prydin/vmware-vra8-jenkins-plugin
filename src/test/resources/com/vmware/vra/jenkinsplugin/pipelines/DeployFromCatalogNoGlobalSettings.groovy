@@ -28,13 +28,13 @@ node {
     def dep = vraDeployFromCatalog(
             vraURL: env.vraURL,
             token: env.token,
-            catalogItemName: 'plain-ubuntu-18',
+            catalogItemName: 'jenkins-test',
             count: 1,
             deploymentName: 'JenkinsProgrammaticNoGlobals-#',
-            projectName: 'Pontus Project',
+            projectName: 'JenkinsTest',
             reason: 'Test',
             timeout: 300,
-            version: '6',
+            version: '2',
             inputs: '{ username: \'testuser\' }')
     assert dep != null
     def addr = vraWaitForAddress(

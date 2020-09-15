@@ -26,9 +26,9 @@ package com.vmware.vra.jenkinsplugin.pipelines
 
 node {
     def config = """
-"catalogItemName": "plain-ubuntu-18"
-"version": "6"
-"projectName": "Pontus Project"
+"catalogItemName": "jenkins-test"
+"version": "2"
+"projectName": "JenkinsTest"
 "deploymentName": "JenkinsFromYaml-#"
 "inputs": 
     "username": "test"
@@ -42,10 +42,40 @@ node {
             deploymentId: dep[0].id,
             resourceName: 'UbuntuMachine')
     echo "Deployed: $dep[0].id, addresses: $addr"
-    def dep2 = vraDeleteDeployment(deploymentName: dep[0].name)
+
+    // Power off the machine
+    def dep2 = vraRunAction(
+            deploymentId: dep[0].id,
+            resourceName: 'UbuntuMachine',
+            actionId: 'Cloud.AWS.EC2.Instance.PowerOff',
+            reason: 'Because I can',
+            timeout: 300
+    )
+    println "Power down machine: ${dep2}"
     assert dep2 != null
-    assert dep2.id != null
-    assert dep2.status == "SUCCESSFUL";
+    assert dep2.size() == 1
+    assert dep2[0].id != null
+    assert dep2[0].status == 'SUCCESSFUL'
+
+    // Power on the entire deployment
+    dep2 = vraRunAction(
+            deploymentId: dep[0].id,
+            actionId: 'Deployment.PowerOn',
+            reason: 'Because I can',
+            timeout: 300
+    )
+    println "Power down deployment: ${dep2}"
+    println dep2
+    assert dep2 != null
+    assert dep2.size() == 1
+    assert dep2[0].id != null
+    assert dep2[0].status == 'SUCCESSFUL'
+
+    // Delete the deployment
+    def dep3 = vraDeleteDeployment(deploymentName: dep[0].name)
+    assert dep3 != null
+    assert dep3.id != null
+    assert dep3.status == "SUCCESSFUL";
 }
 
 

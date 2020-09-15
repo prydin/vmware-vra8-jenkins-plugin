@@ -27,9 +27,9 @@ package com.vmware.vra.jenkinsplugin.pipelines
 node {
     def config = """
 {
-  "catalogItemName": "plain-ubuntu-18",
-  "version": "6",
-  "projectName": "Pontus Project",
+  "catalogItemName": "jenkins-test",
+  "version": "2",
+  "projectName": "JenkinsTest",
   "deploymentName": "JenkinsFromJson-#",
   "inputs": {
     "username": "test"

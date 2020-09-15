@@ -2,7 +2,7 @@
   "content": [
     {
       "id": "563f6b86-e379-3965-81eb-90471da4d688",
-      "name": "plain-ubuntu-18",
+      "name": "jenkins-test",
       "type": {
         "id": "com.vmw.blueprint",
         "link": "/catalog/api/types/com.vmw.blueprint",

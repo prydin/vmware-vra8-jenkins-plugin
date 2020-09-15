@@ -61,16 +61,22 @@ public class MeteringPolicyAssignment {
 
   @SerializedName("entityName")
   private String entityName = null;
+
   @SerializedName("entityType")
   private EntityTypeEnum entityType = null;
+
   @SerializedName("id")
   private UUID id = null;
+
   @SerializedName("lastUpdatedAt")
   private Date lastUpdatedAt = null;
+
   @SerializedName("orgId")
   private String orgId = null;
+
   @SerializedName("pricingCardId")
   private UUID pricingCardId = null;
+
   @SerializedName("pricingCardName")
   private String pricingCardName = null;
 

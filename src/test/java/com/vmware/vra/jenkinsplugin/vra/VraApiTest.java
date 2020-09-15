@@ -26,8 +26,10 @@ package com.vmware.vra.jenkinsplugin.vra;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -53,12 +55,12 @@ import java.util.regex.Pattern;
 import org.junit.Test;
 
 public class VraApiTest {
-  private static final String catalogItemName = "plain-ubuntu-18";
-  private static final String projectName = "Pontus Project";
+  private static final String catalogItemName = "jenkins-test";
+  private static final String projectName = "JenkinsTest";
   private static final String catalogItemId = "563f6b86-e379-3965-81eb-90471da4d688";
   private static final String projectId = "9de81991-4063-43b8-9542-dbaff1e588f8";
   private static final String deploymentId = "17a6f622-2022-4482-bfb7-6fa889dabaa5";
-  private static final String version = "6";
+  private static final String version = "2";
   private static final String resourceName = "UbuntuMachine";
   private static final Pattern ipPattern =
       Pattern.compile(
@@ -334,8 +336,8 @@ public class VraApiTest {
     assertEquals(wantedRequest.getStatus(), dr.getStatus());
   }
 
-  @Test
-  public void testWaitForRequestCompletionHappyPath() throws Exception {
+  private DeploymentRequest waitForCompletionWithTimeout(
+      final long delay, final long timeout, final int invocations) throws Exception {
     // Load templates
     final Gson gson = new Gson();
     final DeploymentRequest pendingRequest =
@@ -351,14 +353,28 @@ public class VraApiTest {
     // Set up mocking
     final VraClient mocked = mock(VraClient.class);
     final VraApi client = new VraApi(mocked);
-    final Delay<DeploymentRequest> provider = new Delay<>(30000, pendingRequest, readyRequest);
-    when(mocked.get(
-            eq("/deployment/api/requests/" + deploymentId), any(), eq(DeploymentRequest.class)))
-        .thenReturn(provider.poll());
-    final DeploymentRequest dr = client.waitForRequestCompletion(deploymentId, 300000);
-    assertEquals("SUCCESSFUL", dr.getStatus());
-    verify(mocked, times(1))
+    final Delay<DeploymentRequest> provider = new Delay<>(delay, pendingRequest, readyRequest);
+    doAnswer(i -> provider.poll())
+        .when(mocked)
         .get(eq("/deployment/api/requests/" + deploymentId), any(), eq(DeploymentRequest.class));
+    final DeploymentRequest dr = client.waitForRequestCompletion(deploymentId, timeout);
+    verify(mocked, times(invocations))
+        .get(eq("/deployment/api/requests/" + deploymentId), any(), eq(DeploymentRequest.class));
+    return dr;
+  }
+
+  @Test
+  public void testWaitForRequestCompletionHappyPath() throws Exception {
+    final DeploymentRequest dr = waitForCompletionWithTimeout(30000, 31000, 2);
+    assertEquals("SUCCESSFUL", dr.getStatus().getValue());
+  }
+
+  @Test
+  public void testWaitForRequestCompletionTimeout() throws Exception {
+    assertThrows(
+        "Should time out",
+        TimeoutException.class,
+        () -> waitForCompletionWithTimeout(31000, 30000, 2));
   }
 
   private static class Delay<T> {

@@ -57,6 +57,7 @@ public class DeploymentExpenseHistory {
 
   @SerializedName("data")
   private List<TimeSeriesValue> data = null;
+
   @SerializedName("interval")
   private IntervalEnum interval = null;
 

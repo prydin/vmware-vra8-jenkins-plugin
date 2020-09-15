@@ -53,30 +53,43 @@ import java.util.Objects;
 public class ResourceType {
   @SerializedName("accountType")
   private AccountTypeEnum accountType = null;
+
   @SerializedName("composable")
   private Boolean composable = null;
+
   @SerializedName("createdAt")
   private Date createdAt = null;
+
   @SerializedName("createdBy")
   private String createdBy = null;
+
   @SerializedName("description")
   private String description = null;
+
   @SerializedName("displayName")
   private String displayName = null;
+
   @SerializedName("id")
   private String id = null;
+
   @SerializedName("name")
   private String name = null;
+
   @SerializedName("orgId")
   private String orgId = null;
+
   @SerializedName("projectId")
   private String projectId = null;
+
   @SerializedName("providerId")
   private String providerId = null;
+
   @SerializedName("schema")
   private Object schema = null;
+
   @SerializedName("updatedAt")
   private Date updatedAt = null;
+
   @SerializedName("updatedBy")
   private String updatedBy = null;
 

@@ -52,6 +52,7 @@ import java.util.Objects;
 public class MeteringPolicyAssignmentInfo {
   @SerializedName("count")
   private Integer count = null;
+
   @SerializedName("entityType")
   private EntityTypeEnum entityType = null;
 

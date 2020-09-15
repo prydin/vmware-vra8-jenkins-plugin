@@ -75,10 +75,13 @@ public class CatalogItemResourceUpfrontPriceResponse {
 
   @SerializedName("resourceUpfrontPriceId")
   private String resourceUpfrontPriceId = null;
+
   @SerializedName("status")
   private StatusEnum status = null;
+
   @SerializedName("statusDetails")
   private String statusDetails = null;
+
   @SerializedName("unit")
   private String unit = null;
 

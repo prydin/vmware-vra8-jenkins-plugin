@@ -54,14 +54,19 @@ import java.util.UUID;
 public class PolicyDecisionPolicy {
   @SerializedName("enforcementType")
   private EnforcementTypeEnum enforcementType = null;
+
   @SerializedName("id")
   private UUID id = null;
+
   @SerializedName("name")
   private String name = null;
+
   @SerializedName("projectId")
   private String projectId = null;
+
   @SerializedName("rank")
   private Integer rank = null;
+
   @SerializedName("status")
   private StatusEnum status = null;
 

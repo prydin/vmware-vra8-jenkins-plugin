@@ -44,7 +44,7 @@
   "operationTimeout": 0,
   "machineNamingTemplate": "${userName}-${######}",
   "sharedResources": true,
-  "name": "Pontus Project",
+  "name": "JenkinsTest",
   "description": "",
   "id": "9de81991-4063-43b8-9542-dbaff1e588f8",
   "organizationId": "7c6b36ef-7829-46a8-9618-5b294f8c161e",

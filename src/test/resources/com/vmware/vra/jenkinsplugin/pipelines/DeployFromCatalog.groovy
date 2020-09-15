@@ -26,10 +26,10 @@ package com.vmware.vra.jenkinsplugin.pipelines
 
 node {
     def dep = vraDeployFromCatalog(
-            catalogItemName: 'plain-ubuntu-18',
+            catalogItemName: 'jenkins-test',
             count: 1,
             deploymentName: 'JenkinsProgrammatic-#',
-            projectName: 'Pontus Project',
+            projectName: 'JenkinsTest',
             reason: 'Test',
             timeout: 300,
             version: '6',
