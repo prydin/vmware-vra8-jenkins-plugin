@@ -1,6 +1,11 @@
-MIT License
+vRealize Automation Plugin for Jenkins
+Copyright 2020 VMware, Inc.
 
-Copyright (c) 2020 Pontus Rydin
+The MIT license (the "License") set forth below applies to all parts of the
+vRealize Automation Plugin for Jenkins project.  You may not use this file
+except in compliance with the License.
+
+MIT License
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

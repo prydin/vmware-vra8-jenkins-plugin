@@ -32,7 +32,7 @@ node {
             projectName: 'JenkinsTest',
             reason: 'Test',
             timeout: 300,
-            version: '6',
+            version: '2',
             inputs: '{ username: \'testuser\' }')
     assert dep != null
     def addr = vraWaitForAddress(
